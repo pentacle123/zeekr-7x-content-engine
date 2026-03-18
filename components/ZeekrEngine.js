@@ -52,39 +52,41 @@ const Tag = ({c="#3b82f6",children}) => <span style={{display:"inline-block",pad
 const ScoreBadge = ({n}) => <div style={{width:48,height:48,borderRadius:12,background:(n>=90?"#10b981":n>=80?"#3b82f6":"#f59e0b")+"15",border:`2px solid ${n>=90?"#10b981":n>=80?"#3b82f6":"#f59e0b"}`,display:"flex",alignItems:"center",justifyContent:"center",fontSize:19,fontWeight:900,color:n>=90?"#10b981":n>=80?"#3b82f6":"#f59e0b",flexShrink:0}}>{n}</div>;
 const Btn = ({onClick,disabled,children,c="135deg,#3b82f6,#2563eb"}) => <button onClick={onClick} disabled={disabled} style={{padding:"14px 40px",borderRadius:12,border:"none",background:disabled?"#1e293b":`linear-gradient(${c})`,color:disabled?"#475569":"#fff",fontSize:14,fontWeight:700,cursor:disabled?"not-allowed":"pointer",fontFamily:FONT,boxShadow:disabled?"none":"0 6px 24px rgba(59,130,246,0.18)",transition:"all 0.3s"}}>{children}</button>;
 
-/* ── Phone Mockup (MELIENS style) ── */
+/* ── Phone Mockup (Enhanced style) ── */
 const PhoneMock = ({hook, typeName, color="#10b981"}) => {
   const h=Math.floor(Math.random()*600+300), cm=Math.floor(Math.random()*80+15), sh=Math.floor(Math.random()*50+10);
+  const typeIcon = typeName?.includes("페인")?"🔥":typeName?.includes("증명")?"🔬":typeName?.includes("상황")?"📍":"⚡";
   return (
-  <div style={{width:170,flexShrink:0,padding:"6px 4px 6px 8px"}}>
-    <div style={{borderRadius:28,overflow:"hidden",border:"3px solid rgba(255,255,255,0.12)",background:"linear-gradient(170deg,#0f1923 0%,#0a1118 30%,#111a24 60%,#0d1520 100%)",position:"relative",boxShadow:"0 8px 32px rgba(0,0,0,0.4), inset 0 1px 0 rgba(255,255,255,0.05)"}}>
+  <div style={{width:200,flexShrink:0,padding:"10px 6px 10px 12px"}}>
+    <div style={{borderRadius:32,overflow:"hidden",border:"3px solid rgba(255,255,255,0.10)",background:"linear-gradient(170deg,#0f1923 0%,#0a1118 30%,#111a24 60%,#0d1520 100%)",position:"relative",boxShadow:"0 12px 40px rgba(0,0,0,0.5), inset 0 1px 0 rgba(255,255,255,0.06)"}}>
       {/* Status bar */}
-      <div style={{padding:"8px 14px 0",display:"flex",justifyContent:"space-between",alignItems:"center"}}>
-        <span style={{fontSize:8,color:"rgba(255,255,255,0.3)",fontWeight:600}}>9:41</span>
+      <div style={{padding:"10px 16px 0",display:"flex",justifyContent:"space-between",alignItems:"center"}}>
+        <span style={{fontSize:9,color:"rgba(255,255,255,0.35)",fontWeight:600}}>9:41</span>
+        <div style={{width:60,height:18,borderRadius:10,background:"#000",border:"1px solid rgba(255,255,255,0.08)"}} />
         <div style={{display:"flex",gap:3,alignItems:"center"}}>
-          <div style={{width:12,height:7,borderRadius:2,border:"1px solid rgba(255,255,255,0.25)",position:"relative"}}><div style={{position:"absolute",left:1,top:1,bottom:1,right:3,borderRadius:1,background:"rgba(255,255,255,0.3)"}} /></div>
+          <div style={{width:13,height:8,borderRadius:2,border:"1px solid rgba(255,255,255,0.25)",position:"relative"}}><div style={{position:"absolute",left:1,top:1,bottom:1,right:3,borderRadius:1,background:"rgba(255,255,255,0.3)"}} /></div>
         </div>
       </div>
       {/* Content area */}
-      <div style={{padding:"10px 14px 16px",display:"flex",gap:8}}>
+      <div style={{padding:"14px 16px 12px",display:"flex",gap:6}}>
         {/* Left: Badge + Text */}
         <div style={{flex:1,minWidth:0}}>
-          {typeName && <div style={{display:"inline-block",padding:"4px 8px",borderRadius:6,fontSize:9,fontWeight:800,background:color+"30",color:color,marginBottom:12,border:`1px solid ${color}40`}}>{typeName}</div>}
-          <div style={{fontSize:16,fontWeight:900,color:"#f1f5f9",lineHeight:1.4,letterSpacing:-0.3,minHeight:90}}>"{hook}"</div>
+          {typeName && <div style={{display:"inline-flex",alignItems:"center",gap:4,padding:"5px 10px",borderRadius:8,fontSize:10,fontWeight:800,background:color+"25",color:color,marginBottom:14,border:`1px solid ${color}35`}}><span style={{fontSize:11}}>{typeIcon}</span>{typeName.split(". ").pop()}</div>}
+          <div style={{fontSize:18,fontWeight:900,color:"#f1f5f9",lineHeight:1.35,letterSpacing:-0.5,minHeight:100}}>"{hook}"</div>
         </div>
         {/* Right: Social metrics (vertical, like real social) */}
-        <div style={{display:"flex",flexDirection:"column",gap:14,alignItems:"center",paddingTop:40}}>
-          {[["♡",h],["●",cm],["➤",sh]].map(([ic,n],i) => (
-            <div key={i} style={{display:"flex",flexDirection:"column",alignItems:"center",gap:2}}>
-              <div style={{width:28,height:28,borderRadius:"50%",background:"rgba(255,255,255,0.06)",display:"flex",alignItems:"center",justifyContent:"center",fontSize:12,color:"rgba(255,255,255,0.5)"}}>{ic}</div>
-              <span style={{fontSize:10,fontWeight:600,color:"rgba(255,255,255,0.4)"}}>{n}</span>
+        <div style={{display:"flex",flexDirection:"column",gap:16,alignItems:"center",paddingTop:50}}>
+          {[["♡",h,"rgba(255,255,255,0.55)"],["●",cm,"rgba(255,255,255,0.45)"],["▶",sh,"rgba(255,255,255,0.40)"]].map(([ic,n,clr],i) => (
+            <div key={i} style={{display:"flex",flexDirection:"column",alignItems:"center",gap:3}}>
+              <div style={{width:32,height:32,borderRadius:"50%",background:"rgba(255,255,255,0.06)",display:"flex",alignItems:"center",justifyContent:"center",fontSize:14,color:clr}}>{ic}</div>
+              <span style={{fontSize:11,fontWeight:700,color:"rgba(255,255,255,0.45)"}}>{n}</span>
             </div>
           ))}
         </div>
       </div>
       {/* Bottom bar */}
-      <div style={{padding:"0 0 8px",display:"flex",justifyContent:"center"}}>
-        <div style={{width:48,height:4,borderRadius:2,background:"rgba(255,255,255,0.15)"}} />
+      <div style={{padding:"4px 0 10px",display:"flex",justifyContent:"center"}}>
+        <div style={{width:56,height:4,borderRadius:2,background:"rgba(255,255,255,0.15)"}} />
       </div>
     </div>
   </div>
@@ -368,6 +370,13 @@ Shorts+Reels JSON:
                           <div style={{fontSize:11,color:"#94a3b8",lineHeight:1.5,display:"-webkit-box",WebkitLineClamp:2,WebkitBoxOrient:"vertical",overflow:"hidden"}}>{s}</div>
                         </div>
                       )}
+                    </div>
+
+                    {/* Action buttons */}
+                    <div style={{display:"flex",gap:8,marginTop:14,alignItems:"center"}}>
+                      <span style={{fontSize:11,color:"#10b981",fontWeight:700,display:"flex",alignItems:"center",gap:4}}>🎬 AI 영상 가능</span>
+                      <button onClick={(e)=>{e.stopPropagation();setPickedIdx(i);}} style={{padding:"7px 18px",borderRadius:8,background:picked?"linear-gradient(135deg,#06b6d4,#0891b2)":"rgba(6,182,212,0.08)",border:picked?"none":"1px solid rgba(6,182,212,0.25)",color:picked?"#fff":"#06b6d4",fontSize:12,fontWeight:700,cursor:"pointer",fontFamily:FONT,transition:"all 0.2s"}}>촬영 스토리보드 생성 →</button>
+                      <button onClick={(e)=>{e.stopPropagation();runContextMatch();}} style={{padding:"7px 14px",borderRadius:8,border:"1px solid rgba(255,255,255,0.08)",background:"transparent",color:"#64748b",fontSize:11,cursor:"pointer",fontFamily:FONT}}>↻ 재생성</button>
                     </div>
                   </div>
                 </div>
