@@ -99,18 +99,21 @@ export default function App() {
   const [step, setStep] = useState(0);
   const [selUsp, setSelUsp] = useState(null);
   const [contexts, setContexts] = useState(null);
-  const [pickedIdx, setPickedIdx] = useState(null); // selected context index
+  const [pickedIdx, setPickedIdx] = useState(null);
   const [sfResult, setSfResult] = useState(null);
   const [loading, setLoading] = useState(false);
   const [mounted, setMounted] = useState(false);
   const [selJ, setSelJ] = useState(null);
   const [selCr, setSelCr] = useState(null);
   const [jResults, setJResults] = useState(null);
+  
+  const [crResult, setCrResult] = useState(null); // creator AI result
 
   useEffect(() => setMounted(true), []);
-  const goHome = () => { setView("home"); setStep(0); setSelUsp(null); setContexts(null); setPickedIdx(null); setSfResult(null); setJResults(null); };
+  const goHome = () => { setView("home"); setStep(0); setSelUsp(null); setContexts(null); setPickedIdx(null); setSfResult(null); setJResults(null); setCrResult(null); };
   const goEngine = () => { setView("engine"); setStep(0); setSelUsp(null); setContexts(null); setPickedIdx(null); setSfResult(null); };
   const goJourney = () => { setView("journey"); setJResults(null); setSelJ(null); setSelCr(null); };
+  const goCreator = () => { setView("creator"); setCrResult(null); };
   const selectUsp = (u) => { setSelUsp(u); setStep(1); setContexts(null); setPickedIdx(null); setSfResult(null); };
 
   const runContextMatch = useCallback(async () => {
@@ -163,6 +166,7 @@ Shorts+Reels JSON:
           </div>
           {view!=="home"&&<div style={{display:"flex",gap:4}}>
             <button onClick={goEngine} style={{padding:"8px 18px",borderRadius:8,border:"none",background:view==="engine"?"rgba(59,130,246,0.15)":"transparent",color:view==="engine"?"#60a5fa":"#64748b",fontSize:12,fontWeight:view==="engine"?700:500,cursor:"pointer",fontFamily:FONT}}>⚡ 알고리즘 콘텐츠 엔진</button>
+            <button onClick={goCreator} style={{padding:"8px 18px",borderRadius:8,border:"none",background:view==="creator"?"rgba(245,158,11,0.15)":"transparent",color:view==="creator"?"#fbbf24":"#64748b",fontSize:12,fontWeight:view==="creator"?700:500,cursor:"pointer",fontFamily:FONT}}>🤝 크리에이터 매칭</button>
             <button onClick={goJourney} style={{padding:"8px 18px",borderRadius:8,border:"none",background:view==="journey"?"rgba(16,185,129,0.15)":"transparent",color:view==="journey"?"#34d399":"#64748b",fontSize:12,fontWeight:view==="journey"?700:500,cursor:"pointer",fontFamily:FONT}}>🗺️ 탐색 여정 콘텐츠 맵</button>
           </div>}
           <div style={{fontSize:10,color:"#334155",minWidth:80,textAlign:"right"}}>Pentacle × AI</div>
@@ -182,9 +186,10 @@ Shorts+Reels JSON:
             {[["12","USPs"],["6","Context Axes"],["3×3","Journey Map"],["∞","Contents"]].map(([n,l],i)=><div key={i} style={{textAlign:"center"}}><div style={{fontSize:28,fontWeight:900}}>{n}</div><div style={{fontSize:10,fontWeight:700,color:"#3b82f6",letterSpacing:1.5,marginTop:6}}>{l}</div></div>)}
           </div>
         </div>
-        <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:20,paddingBottom:80}}>
-          {[{fn:goEngine,ic:"⚡",t:"알고리즘 콘텐츠 엔진",d:"USP별 6축 맥락 분석으로 발견 커머스형 숏폼을 설계합니다. AI가 관심사 매칭 → TOP 5 맥락 추천 → YouTube Shorts + Instagram Reels까지 원스톱 생성.",tags:["6축 맥락매칭","스코어링","Shorts + Reels"],a:"#3b82f6"},
-            {fn:goJourney,ic:"🗺️",t:"탐색 여정 콘텐츠 맵",d:"전기차 구매를 고려하는 소비자의 탐색 단계(검색→비교→확신)별로 브랜드·인플루언서·UGC 각 크리에이터가 어떤 콘텐츠를 만들어야 하는지 설계합니다.",tags:["구매여정 3단계","크리에이터 3타입","9개 콘텐츠 방향"],a:"#10b981"}
+        <div style={{display:"grid",gridTemplateColumns:"1fr 1fr 1fr",gap:20,paddingBottom:80}}>
+          {[{fn:goEngine,ic:"⚡",t:"알고리즘 콘텐츠 엔진",d:"USP별 6축 맥락 분석 → TOP 5 맥락 추천 → Shorts + Reels 원스톱 생성",tags:["6축 맥락매칭","스코어링","Shorts + Reels"],a:"#3b82f6"},
+            {fn:goCreator,ic:"🤝",t:"크리에이터 매칭",d:"USP를 자동차 밖의 크리에이터와 연결. 캠핑·육아·테크·셀럽 채널과의 협업 아이디어를 설계",tags:["USP×크리에이터","비자동차 채널","협업 콘텐츠"],a:"#f59e0b"},
+            {fn:goJourney,ic:"🗺️",t:"탐색 여정 콘텐츠 맵",d:"검색→비교→구매확신 여정별 브랜드·인플루언서·UGC 콘텐츠 자동 설계",tags:["구매여정 3단계","크리에이터 3타입"],a:"#10b981"}
           ].map((f,i)=><div key={i} onClick={f.fn} style={{...G,padding:32,cursor:"pointer",transition:"all 0.35s",display:"flex",flexDirection:"column",opacity:mounted?1:0,transitionDelay:`${0.55+i*0.1}s`}} onMouseEnter={e=>{e.currentTarget.style.borderColor=f.a+"30";e.currentTarget.style.transform="translateY(-3px)";}} onMouseLeave={e=>{e.currentTarget.style.borderColor="rgba(255,255,255,0.05)";e.currentTarget.style.transform="none";}}>
             <div style={{fontSize:32,marginBottom:16}}>{f.ic}</div><div style={{fontSize:18,fontWeight:900,marginBottom:10}}>{f.t}</div><div style={{fontSize:13,color:"#64748b",lineHeight:1.75,flex:1}}>{f.d}</div>
             <div style={{display:"flex",gap:6,flexWrap:"wrap",margin:"16px 0"}}>{f.tags.map(t=><Tag key={t} c={f.a}>{t}</Tag>)}</div><div style={{fontSize:13,fontWeight:700,color:f.a}}>시작하기 →</div>
@@ -470,6 +475,152 @@ Shorts+Reels JSON:
         </div>
         {selJ&&selCr&&!jResults&&<div style={{textAlign:"center",padding:20}}><Btn onClick={()=>runJourney(selJ,selCr)} disabled={loading} c="135deg,#10b981,#059669">{loading?"⏳":"🗺️ 콘텐츠 생성"}</Btn></div>}
         {jResults&&jResults.map((r,i)=><div key={i} style={{...G,padding:24,marginBottom:14,display:"flex",gap:18,alignItems:"flex-start"}}><ScoreBadge n={r.score}/><div style={{flex:1}}><div style={{fontSize:15,fontWeight:800,marginBottom:6}}>{r.title}</div><div style={{display:"flex",gap:6,marginBottom:10}}><Tag c="#06b6d4">{r.keyword}</Tag></div><div style={{fontSize:14,fontWeight:700,color:"#f59e0b",marginBottom:10}}>🎣 "{r.hook}"</div><div style={{fontSize:13,color:"#94a3b8",lineHeight:1.75,whiteSpace:"pre-wrap"}}>{r.overview}</div><div style={{fontSize:12,color:"#64748b",marginTop:10,fontStyle:"italic"}}>{r.why}</div><div style={{display:"flex",gap:6,marginTop:12}}>{(r.proofPoints||[]).map((p,j)=><Tag key={j} c="#10b981">{p}</Tag>)}</div></div></div>)}
+      </div>}
+
+      {/* ═══ CREATOR MATCHING ═══ */}
+      {view==="creator"&&<div style={{maxWidth:MAX_W,margin:"0 auto",padding:`40px ${PX}px 80px`}}>
+        <h2 style={{fontSize:22,fontWeight:900,marginBottom:6}}>🤝 크리에이터 매칭</h2>
+        <p style={{fontSize:13,color:"#64748b",marginBottom:8}}>ZEEKR 7X의 12개 USP를 AI가 자동 분석하여 최적의 크리에이터를 매칭합니다. 차 유튜버뿐 아니라 캠핑·육아·테크·과학·셀럽까지 — 매번 새로운 조합을 추천합니다.</p>
+
+        {/* Two approach cards */}
+        <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:16,marginBottom:32}}>
+          <div style={{...G,padding:20,borderColor:"rgba(59,130,246,0.12)"}}>
+            <div style={{fontSize:11,fontWeight:800,color:"#3b82f6",letterSpacing:1.5,marginBottom:8}}>APPROACH 1</div>
+            <div style={{fontSize:15,fontWeight:800,marginBottom:4}}>USP → 크리에이터 매칭</div>
+            <div style={{fontSize:12,color:"#64748b",lineHeight:1.6}}>개별 USP 또는 USP 조합에서 출발하여, 그 기능을 가장 효과적으로 이야기해줄 수 있는 비자동차 카테고리 크리에이터를 추천</div>
+          </div>
+          <div style={{...G,padding:20,borderColor:"rgba(245,158,11,0.12)"}}>
+            <div style={{fontSize:11,fontWeight:800,color:"#f59e0b",letterSpacing:1.5,marginBottom:8}}>APPROACH 2</div>
+            <div style={{fontSize:15,fontWeight:800,marginBottom:4}}>셀럽 → 스토리 설계</div>
+            <div style={{fontSize:12,color:"#64748b",lineHeight:1.6}}>타겟 오디언스가 겹치는 셀럽/메가 유튜버에서 출발하여, ZEEKR 7X를 자연스럽게 녹여낼 수 있는 스토리 앵글을 설계</div>
+          </div>
+        </div>
+
+        {/* CTA Button */}
+        {!crResult && <div style={{textAlign:"center",padding:20}}>
+          <button onClick={async()=>{
+            setLoading(true); setCrResult(null);
+            const uspList = USPS.map(u=>`${u.icon}${u.label}(${u.sub})`).join(", ");
+            const r = await callAI(
+              "ZEEKR 7X 크리에이터 협업 전략가. 반드시 순수 JSON만 반환. markdown 코드블록 없이. 한국어.",
+              `ZEEKR 7X는 다음 12개 USP를 가진 프리미엄 전기 SUV입니다: ${uspList}
+
+두 가지 접근으로 크리에이터 매칭 결과를 JSON으로 반환해:
+{
+  "uspMatch": [
+    {
+      "uspCombination": "활용할 USP 1~2개 (아이콘+이름)",
+      "uspReason": "이 USP(조합)로 왜 이 크리에이터인지 1줄",
+      "category": "크리에이터 카테고리 (캠핑/육아/테크/과학/먹방/ASMR/여행/라이프스타일 등 — 자동차 제외)",
+      "categoryIcon": "카테고리 이모지",
+      "channelName": "실제 한국 유튜브 채널명",
+      "subscribers": "추정 구독자수",
+      "channelDesc": "채널 특징 1줄",
+      "collabTitle": "협업 콘텐츠 제목",
+      "collabConcept": "어떤 콘텐츠를 어떻게 만들지 구체적으로 2~3줄",
+      "format": "숏폼/롱폼/시리즈",
+      "impact": "예상 효과 1줄"
+    }
+  ],
+  "celebMatch": [
+    {
+      "channelName": "셀럽/메가 유튜버 채널명",
+      "subscribers": "구독자수",
+      "channelDesc": "채널 특징 1줄",
+      "targetOverlap": "ZEEKR 7X 타겟과 이 셀럽의 시청자가 왜 겹치는지 1줄",
+      "storyAngle": "스토리 앵글 제목 (예: '802km 무충전 제주 일주')",
+      "storyDetail": "이 셀럽의 콘텐츠 스타일에 맞춘 구체적 스토리 2~3줄. ZEEKR 7X가 자연스럽게 녹아드는 방식",
+      "uspHighlight": "자연스럽게 노출되는 USP 1~2개",
+      "format": "숏폼/롱폼/시리즈/라이브",
+      "impact": "예상 효과 1줄"
+    }
+  ]
+}
+uspMatch는 5개: 모두 자동차 카테고리가 아닌 다른 카테고리(캠핑/육아/테크/과학/ASMR/먹방/여행/라이프스타일 등)에서 추천. 각각 다른 USP 또는 USP 조합을 활용. 같은 카테고리 중복 최소화.
+celebMatch는 3개: 구독자 50만 이상의 한국 셀럽/메가 유튜버. USP를 직접 설명하지 않더라도 ZEEKR 7X의 브랜드 임팩트를 줄 수 있는 인물. 각각 다른 스토리 앵글.`
+            );
+            setCrResult(typeof r === "object" && r.uspMatch ? r : null); setLoading(false);
+          }} disabled={loading}
+            style={{padding:"16px 44px",borderRadius:12,border:"none",background:loading?"#1e293b":"linear-gradient(135deg,#f59e0b,#d97706)",color:loading?"#475569":"#fff",fontSize:15,fontWeight:700,cursor:loading?"not-allowed":"pointer",fontFamily:FONT,boxShadow:loading?"none":"0 6px 24px rgba(245,158,11,0.2)"}}>
+            {loading?"⏳ AI 분석 중...":"🤝 AI 크리에이터 매칭 분석"}
+          </button>
+        </div>}
+
+        {/* Results */}
+        {crResult && <>
+          {/* Regenerate */}
+          <div style={{display:"flex",alignItems:"center",gap:12,marginBottom:24}}>
+            <Tag c="#f59e0b">AI 실시간 생성</Tag>
+            <button onClick={()=>setCrResult(null)} style={{marginLeft:"auto",padding:"7px 18px",borderRadius:8,border:"1px solid rgba(255,255,255,0.08)",background:"transparent",color:"#64748b",fontSize:12,cursor:"pointer",fontFamily:FONT}}>↻ 다른 조합으로 재분석</button>
+          </div>
+
+          {/* ── SECTION 1: USP → Creator ── */}
+          <div style={{marginBottom:40}}>
+            <div style={{display:"flex",alignItems:"center",gap:10,marginBottom:20}}>
+              <div style={{width:6,height:24,borderRadius:3,background:"#3b82f6"}} />
+              <div>
+                <div style={{fontSize:18,fontWeight:900}}>USP → 크리에이터 매칭</div>
+                <div style={{fontSize:12,color:"#64748b",marginTop:2}}>각 USP를 가장 잘 전달할 수 있는 비자동차 카테고리 크리에이터</div>
+              </div>
+            </div>
+            {(crResult.uspMatch||[]).map((cr,i) => (
+              <div key={i} style={{...G,padding:0,marginBottom:14,overflow:"hidden"}}>
+                <div style={{display:"flex"}}>
+                  <div style={{width:200,flexShrink:0,padding:20,background:"rgba(59,130,246,0.03)",borderRight:"1px solid rgba(255,255,255,0.04)",display:"flex",flexDirection:"column",gap:8}}>
+                    <div style={{display:"flex",alignItems:"center",gap:6}}>
+                      <span style={{fontSize:18}}>{cr.categoryIcon}</span>
+                      <span style={{fontSize:11,fontWeight:700,color:"#3b82f6"}}>{cr.category}</span>
+                    </div>
+                    <div><div style={{fontSize:15,fontWeight:900,marginBottom:3}}>{cr.channelName}</div><div style={{fontSize:11,color:"#64748b"}}>{cr.channelDesc}</div></div>
+                    <div style={{fontSize:12,fontWeight:700,color:"#94a3b8",marginTop:"auto"}}>구독 {cr.subscribers}</div>
+                  </div>
+                  <div style={{flex:1,padding:20}}>
+                    <div style={{display:"flex",alignItems:"center",gap:8,marginBottom:12}}>
+                      <div style={{width:26,height:26,borderRadius:"50%",background:"linear-gradient(135deg,#3b82f6,#06b6d4)",display:"flex",alignItems:"center",justifyContent:"center",fontSize:11,fontWeight:900,color:"#fff"}}>{i+1}</div>
+                      <Tag c="#3b82f6">{cr.uspCombination}</Tag>
+                    </div>
+                    <div style={{fontSize:12,color:"#94a3b8",marginBottom:10}}>{cr.uspReason}</div>
+                    <div style={{...G,padding:14,marginBottom:10,borderColor:"rgba(59,130,246,0.1)",background:"rgba(59,130,246,0.03)"}}>
+                      <div style={{fontSize:14,fontWeight:800,marginBottom:4}}>{cr.collabTitle}</div>
+                      <div style={{fontSize:12,color:"#94a3b8",lineHeight:1.6}}>{cr.collabConcept}</div>
+                    </div>
+                    <div style={{display:"flex",gap:6}}><Tag c="#06b6d4">{cr.format}</Tag><span style={{fontSize:11,color:"#475569",display:"flex",alignItems:"center",gap:4}}>📊 {cr.impact}</span></div>
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+
+          {/* ── SECTION 2: Celeb → Story ── */}
+          <div>
+            <div style={{display:"flex",alignItems:"center",gap:10,marginBottom:20}}>
+              <div style={{width:6,height:24,borderRadius:3,background:"#f59e0b"}} />
+              <div>
+                <div style={{fontSize:18,fontWeight:900}}>셀럽 → 스토리 설계</div>
+                <div style={{fontSize:12,color:"#64748b",marginTop:2}}>타겟이 겹치는 셀럽/메가 유튜버 + ZEEKR 7X가 자연스럽게 녹아드는 스토리 앵글</div>
+              </div>
+            </div>
+            {(crResult.celebMatch||[]).map((cr,i) => (
+              <div key={i} style={{...G,padding:0,marginBottom:14,overflow:"hidden"}}>
+                <div style={{display:"flex"}}>
+                  <div style={{width:200,flexShrink:0,padding:20,background:"rgba(245,158,11,0.03)",borderRight:"1px solid rgba(255,255,255,0.04)",display:"flex",flexDirection:"column",gap:8}}>
+                    <span style={{fontSize:20}}>⭐</span>
+                    <div><div style={{fontSize:15,fontWeight:900,marginBottom:3}}>{cr.channelName}</div><div style={{fontSize:11,color:"#64748b"}}>{cr.channelDesc}</div></div>
+                    <div style={{fontSize:12,fontWeight:700,color:"#94a3b8",marginTop:"auto"}}>구독 {cr.subscribers}</div>
+                  </div>
+                  <div style={{flex:1,padding:20}}>
+                    <div style={{fontSize:12,color:"#f59e0b",fontWeight:700,marginBottom:8}}>🎯 타겟 오버랩: {cr.targetOverlap}</div>
+                    <div style={{...G,padding:14,marginBottom:10,borderColor:"rgba(245,158,11,0.1)",background:"rgba(245,158,11,0.03)"}}>
+                      <div style={{fontSize:14,fontWeight:800,color:"#fbbf24",marginBottom:6}}>📐 "{cr.storyAngle}"</div>
+                      <div style={{fontSize:13,color:"#e2e8f0",lineHeight:1.65}}>{cr.storyDetail}</div>
+                    </div>
+                    <div style={{display:"flex",gap:6,flexWrap:"wrap"}}><Tag c="#f59e0b">{cr.format}</Tag><Tag c="#3b82f6">{cr.uspHighlight}</Tag><span style={{fontSize:11,color:"#475569",display:"flex",alignItems:"center",gap:4}}>📊 {cr.impact}</span></div>
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+        </>}
       </div>}
 
       {loading&&<div style={{position:"fixed",bottom:32,right:32,...G,padding:"14px 24px",display:"flex",alignItems:"center",gap:10,zIndex:200,borderColor:"rgba(59,130,246,0.15)"}}><div style={{width:8,height:8,borderRadius:"50%",background:"#3b82f6",animation:"pulse 1.2s infinite"}}/><span style={{fontSize:13,color:"#60a5fa",fontWeight:600}}>AI 생성 중...</span></div>}
