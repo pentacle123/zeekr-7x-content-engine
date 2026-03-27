@@ -108,13 +108,18 @@ export default function App() {
   const [jResults, setJResults] = useState(null);
   
   const [crResult, setCrResult] = useState(null); // creator AI result
+  const [crStep, setCrStep] = useState(0); // creator step: 0=USP select, 1=creator list, 2=scenario
+  const [crUsps, setCrUsps] = useState([]); // selected USPs for creator matching (multi-select)
+  const [crPickedIdx, setCrPickedIdx] = useState(null); // selected creator index
+  const [crScenario, setCrScenario] = useState(null); // generated scenario
 
   useEffect(() => setMounted(true), []);
-  const goHome = () => { setView("home"); setStep(0); setSelUsp(null); setContexts(null); setPickedIdx(null); setSfResult(null); setJResults(null); setCrResult(null); };
+  const goHome = () => { setView("home"); setStep(0); setSelUsp(null); setContexts(null); setPickedIdx(null); setSfResult(null); setJResults(null); setCrResult(null); setCrStep(0); setCrUsps([]); setCrPickedIdx(null); setCrScenario(null); };
   const goEngine = () => { setView("engine"); setStep(0); setSelUsp(null); setContexts(null); setPickedIdx(null); setSfResult(null); };
   const goJourney = () => { setView("journey"); setJResults(null); setSelJ(null); setSelCr(null); };
-  const goCreator = () => { setView("creator"); setCrResult(null); };
+  const goCreator = () => { setView("creator"); setCrStep(0); setCrUsps([]); setCrResult(null); setCrPickedIdx(null); setCrScenario(null); };
   const selectUsp = (u) => { setSelUsp(u); setStep(1); setContexts(null); setPickedIdx(null); setSfResult(null); };
+  const toggleCrUsp = (u) => { setCrUsps(prev => prev.find(p=>p.id===u.id) ? prev.filter(p=>p.id!==u.id) : [...prev, u]); };
 
   const runContextMatch = useCallback(async () => {
     if (!selUsp) return;
@@ -146,6 +151,42 @@ Shorts+Reels JSON:
     );
     setSfResult(typeof r === "object" && r.shorts ? r : null); setLoading(false);
   }, [selUsp, contexts, pickedIdx]);
+
+  const runCreatorMatch = useCallback(async () => {
+    if (crUsps.length === 0) return;
+    setLoading(true); setCrResult(null); setCrPickedIdx(null); setCrScenario(null); setCrStep(1);
+    const uspInfo = crUsps.map(u => `${u.icon}${u.label}(${u.sub}, WHO:${u.ctx.who.join(",")}, PAIN:${u.ctx.pain.join(",")}, INTEREST:${u.ctx.interest.join(",")})`).join(" + ");
+    const r = await callAI(
+      "ZEEKR 7X 크리에이터 협업 전략가. 반드시 순수 JSON만 반환. markdown 코드블록 없이. 한국어.",
+      `ZEEKR 7X USP: ${uspInfo}
+
+이 USP(조합)에 최적화된 크리에이터를 메가/마이크로로 나눠 JSON 반환:
+{"mega":[{"channelName":"실제 한국 유튜브 채널명","subscribers":"구독자수(50만+)","category":"카테고리(캠핑/육아/테크/과학/ASMR/여행/라이프스타일/셀럽 등 - 자동차 카테고리 외)","categoryIcon":"카테고리 이모지","channelDesc":"채널 특징 1줄","matchReason":"이 USP와 왜 맞는지 1줄","collabDirection":"협업 방향 1줄"}],
+"micro":[{"channelName":"실제 한국 유튜브 채널명","subscribers":"구독자수(1만~50만)","category":"니치 카테고리","categoryIcon":"카테고리 이모지","channelDesc":"채널 특징 1줄","matchReason":"이 USP와 왜 맞는지 1줄","collabDirection":"협업 방향 1줄"}]}
+mega 4개(구독자 50만+, 다양한 카테고리), micro 4개(구독자 1만~50만, 니치 전문 채널). 자동차 유튜버 제외. 각각 다른 카테고리.`
+    );
+    setCrResult(typeof r === "object" && (r.mega || r.micro) ? r : null); setLoading(false);
+  }, [crUsps]);
+
+  const runCreatorScenario = useCallback(async () => {
+    if (crPickedIdx === null || !crResult) return;
+    setLoading(true); setCrScenario(null); setCrStep(2);
+    const allCreators = [...(crResult.mega||[]),...(crResult.micro||[])];
+    const cr = allCreators[crPickedIdx];
+    const uspInfo = crUsps.map(u => `${u.icon}${u.label}(${u.sub})`).join(" + ");
+    const r = await callAI(
+      "ZEEKR 7X 크리에이터 콘텐츠 시나리오 프로듀서. 반드시 순수 JSON만 반환. markdown 코드블록 없이. 한국어.",
+      `크리에이터: "${cr.channelName}" (${cr.channelDesc}, 구독 ${cr.subscribers})
+USP: ${uspInfo}
+협업 방향: ${cr.collabDirection}
+
+메인 스토리(롱폼) 1개 + 연계 숏폼 3개 JSON:
+{"mainStory":{"title":"콘텐츠 제목","format":"롱폼 15~20분|시리즈|라이브","storyline":"구체적 시나리오 3~4줄. 이 크리에이터의 콘텐츠 스타일에 맞춤","uspExposure":"어느 장면에서 어떤 USP가 어떻게 자연스럽게 노출되는지 2줄","expectedImpact":"예상 조회수/효과 1줄"},
+"linkedShorts":[{"platform":"YouTube Shorts|Instagram Reels","hook":"후킹카피 20자이내","concept":"이 숏폼의 컨셉 1줄 (메인 영상의 하이라이트/비하인드/리액션 등)","scenes":["씬1","씬2","씬3","씬4"],"algorithmSignal":"Hook/Value/Retention 시그널 1줄"}]}
+linkedShorts 3개: 메인 영상에서 파생되는 알고리즘 최적화 숏폼. 각각 다른 앵글(하이라이트 클립, 비하인드, 리액션 컷, 요약 등).`
+    );
+    setCrScenario(typeof r === "object" && r.mainStory ? r : null); setLoading(false);
+  }, [crResult, crPickedIdx, crUsps]);
 
   const runJourney = useCallback(async (j, c) => {
     setLoading(true); setJResults(null);
@@ -477,149 +518,258 @@ Shorts+Reels JSON:
         {jResults&&jResults.map((r,i)=><div key={i} style={{...G,padding:24,marginBottom:14,display:"flex",gap:18,alignItems:"flex-start"}}><ScoreBadge n={r.score}/><div style={{flex:1}}><div style={{fontSize:15,fontWeight:800,marginBottom:6}}>{r.title}</div><div style={{display:"flex",gap:6,marginBottom:10}}><Tag c="#06b6d4">{r.keyword}</Tag></div><div style={{fontSize:14,fontWeight:700,color:"#f59e0b",marginBottom:10}}>🎣 "{r.hook}"</div><div style={{fontSize:13,color:"#94a3b8",lineHeight:1.75,whiteSpace:"pre-wrap"}}>{r.overview}</div><div style={{fontSize:12,color:"#64748b",marginTop:10,fontStyle:"italic"}}>{r.why}</div><div style={{display:"flex",gap:6,marginTop:12}}>{(r.proofPoints||[]).map((p,j)=><Tag key={j} c="#10b981">{p}</Tag>)}</div></div></div>)}
       </div>}
 
-      {/* ═══ CREATOR MATCHING ═══ */}
+      {/* ═══ CREATOR MATCHING (Redesigned 3-Step) ═══ */}
       {view==="creator"&&<div style={{maxWidth:MAX_W,margin:"0 auto",padding:`40px ${PX}px 80px`}}>
-        <h2 style={{fontSize:22,fontWeight:900,marginBottom:6}}>🤝 크리에이터 매칭</h2>
-        <p style={{fontSize:13,color:"#64748b",marginBottom:8}}>ZEEKR 7X의 12개 USP를 AI가 자동 분석하여 최적의 크리에이터를 매칭합니다. 차 유튜버뿐 아니라 캠핑·육아·테크·과학·셀럽까지 — 매번 새로운 조합을 추천합니다.</p>
-
-        {/* Two approach cards */}
-        <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:16,marginBottom:32}}>
-          <div style={{...G,padding:20,borderColor:"rgba(59,130,246,0.12)"}}>
-            <div style={{fontSize:11,fontWeight:800,color:"#3b82f6",letterSpacing:1.5,marginBottom:8}}>APPROACH 1</div>
-            <div style={{fontSize:15,fontWeight:800,marginBottom:4}}>USP → 크리에이터 매칭</div>
-            <div style={{fontSize:12,color:"#64748b",lineHeight:1.6}}>개별 USP 또는 USP 조합에서 출발하여, 그 기능을 가장 효과적으로 이야기해줄 수 있는 비자동차 카테고리 크리에이터를 추천</div>
-          </div>
-          <div style={{...G,padding:20,borderColor:"rgba(245,158,11,0.12)"}}>
-            <div style={{fontSize:11,fontWeight:800,color:"#f59e0b",letterSpacing:1.5,marginBottom:8}}>APPROACH 2</div>
-            <div style={{fontSize:15,fontWeight:800,marginBottom:4}}>셀럽 → 스토리 설계</div>
-            <div style={{fontSize:12,color:"#64748b",lineHeight:1.6}}>타겟 오디언스가 겹치는 셀럽/메가 유튜버에서 출발하여, ZEEKR 7X를 자연스럽게 녹여낼 수 있는 스토리 앵글을 설계</div>
-          </div>
+        {/* Progress */}
+        <div style={{display:"flex",alignItems:"center",justifyContent:"center",marginBottom:40,padding:"16px 0"}}>
+          {[{n:1,l:"USP 선택"},{n:2,l:"크리에이터 추천"},{n:3,l:"콘텐츠 시나리오"}].map((s,i)=>
+            <div key={i} style={{display:"flex",alignItems:"center"}}>
+              <div style={{display:"flex",alignItems:"center",gap:8}}>
+                <div style={{width:30,height:30,borderRadius:"50%",background:crStep>=i?"linear-gradient(135deg,#f59e0b,#d97706)":"rgba(255,255,255,0.04)",border:crStep>=i?"none":"1px solid rgba(255,255,255,0.08)",display:"flex",alignItems:"center",justifyContent:"center",fontSize:12,fontWeight:800,color:crStep>=i?"#fff":"#475569"}}>{s.n}</div>
+                <span style={{fontSize:13,fontWeight:crStep===i?800:500,color:crStep>=i?"#f1f5f9":"#475569"}}>{s.l}</span>
+              </div>
+              {i<2&&<div style={{width:80,height:1,background:crStep>i?"#f59e0b":"rgba(255,255,255,0.06)",margin:"0 20px"}} />}
+            </div>
+          )}
         </div>
 
-        {/* CTA Button */}
-        {!crResult && <div style={{textAlign:"center",padding:20}}>
-          <button onClick={async()=>{
-            setLoading(true); setCrResult(null);
-            const uspList = USPS.map(u=>`${u.icon}${u.label}(${u.sub})`).join(", ");
-            const r = await callAI(
-              "ZEEKR 7X 크리에이터 협업 전략가. 반드시 순수 JSON만 반환. markdown 코드블록 없이. 한국어.",
-              `ZEEKR 7X는 다음 12개 USP를 가진 프리미엄 전기 SUV입니다: ${uspList}
+        {/* STEP 0: USP Selection (multi-select) */}
+        {crStep===0&&<>
+          <h2 style={{fontSize:22,fontWeight:900,marginBottom:6}}>🤝 USP 주제 선택</h2>
+          <p style={{fontSize:13,color:"#64748b",marginBottom:12}}>크리에이터와 매칭할 USP를 선택하세요. 단일 USP 또는 조합(복수 선택) 가능합니다.</p>
 
-두 가지 접근으로 크리에이터 매칭 결과를 JSON으로 반환해:
-{
-  "uspMatch": [
-    {
-      "uspCombination": "활용할 USP 1~2개 (아이콘+이름)",
-      "uspReason": "이 USP(조합)로 왜 이 크리에이터인지 1줄",
-      "category": "크리에이터 카테고리 (캠핑/육아/테크/과학/먹방/ASMR/여행/라이프스타일 등 — 자동차 제외)",
-      "categoryIcon": "카테고리 이모지",
-      "channelName": "실제 한국 유튜브 채널명",
-      "subscribers": "추정 구독자수",
-      "channelDesc": "채널 특징 1줄",
-      "collabTitle": "협업 콘텐츠 제목",
-      "collabConcept": "어떤 콘텐츠를 어떻게 만들지 구체적으로 2~3줄",
-      "format": "숏폼/롱폼/시리즈",
-      "impact": "예상 효과 1줄"
-    }
-  ],
-  "celebMatch": [
-    {
-      "channelName": "셀럽/메가 유튜버 채널명",
-      "subscribers": "구독자수",
-      "channelDesc": "채널 특징 1줄",
-      "targetOverlap": "ZEEKR 7X 타겟과 이 셀럽의 시청자가 왜 겹치는지 1줄",
-      "storyAngle": "스토리 앵글 제목 (예: '802km 무충전 제주 일주')",
-      "storyDetail": "이 셀럽의 콘텐츠 스타일에 맞춘 구체적 스토리 2~3줄. ZEEKR 7X가 자연스럽게 녹아드는 방식",
-      "uspHighlight": "자연스럽게 노출되는 USP 1~2개",
-      "format": "숏폼/롱폼/시리즈/라이브",
-      "impact": "예상 효과 1줄"
-    }
-  ]
-}
-uspMatch는 5개: 모두 자동차 카테고리가 아닌 다른 카테고리(캠핑/육아/테크/과학/ASMR/먹방/여행/라이프스타일 등)에서 추천. 각각 다른 USP 또는 USP 조합을 활용. 같은 카테고리 중복 최소화.
-celebMatch는 3개: 구독자 50만 이상의 한국 셀럽/메가 유튜버. USP를 직접 설명하지 않더라도 ZEEKR 7X의 브랜드 임팩트를 줄 수 있는 인물. 각각 다른 스토리 앵글.`
-            );
-            setCrResult(typeof r === "object" && r.uspMatch ? r : null); setLoading(false);
-          }} disabled={loading}
-            style={{padding:"16px 44px",borderRadius:12,border:"none",background:loading?"#1e293b":"linear-gradient(135deg,#f59e0b,#d97706)",color:loading?"#475569":"#fff",fontSize:15,fontWeight:700,cursor:loading?"not-allowed":"pointer",fontFamily:FONT,boxShadow:loading?"none":"0 6px 24px rgba(245,158,11,0.2)"}}>
-            {loading?"⏳ AI 분석 중...":"🤝 AI 크리에이터 매칭 분석"}
-          </button>
-        </div>}
+          {/* Selected USP tags bar */}
+          {crUsps.length>0&&<div style={{...G,padding:"12px 20px",marginBottom:20,display:"flex",alignItems:"center",gap:8,flexWrap:"wrap",borderColor:"rgba(245,158,11,0.15)"}}>
+            <span style={{fontSize:11,fontWeight:800,color:"#f59e0b"}}>선택된 USP:</span>
+            {crUsps.map(u=><Tag key={u.id} c={u.c}>{u.icon} {u.label}</Tag>)}
+            <button onClick={()=>setCrUsps([])} style={{marginLeft:"auto",padding:"4px 12px",borderRadius:6,border:"1px solid rgba(255,255,255,0.08)",background:"transparent",color:"#64748b",fontSize:10,cursor:"pointer",fontFamily:FONT}}>초기화</button>
+          </div>}
 
-        {/* Results */}
-        {crResult && <>
-          {/* Regenerate */}
-          <div style={{display:"flex",alignItems:"center",gap:12,marginBottom:24}}>
-            <Tag c="#f59e0b">AI 실시간 생성</Tag>
-            <button onClick={()=>setCrResult(null)} style={{marginLeft:"auto",padding:"7px 18px",borderRadius:8,border:"1px solid rgba(255,255,255,0.08)",background:"transparent",color:"#64748b",fontSize:12,cursor:"pointer",fontFamily:FONT}}>↻ 다른 조합으로 재분석</button>
+          {/* Tier 1 */}
+          <div style={{marginBottom:28}}>
+            <div style={{display:"flex",alignItems:"center",gap:8,marginBottom:14}}>
+              <span style={{fontSize:11,fontWeight:800,color:"#10b981",letterSpacing:2,textTransform:"uppercase"}}>핵심 USP</span>
+            </div>
+            <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:14}}>
+              {USPS.filter(u=>u.tier===1).map(u=>{const sel=crUsps.find(p=>p.id===u.id); return (
+                <div key={u.id} onClick={()=>toggleCrUsp(u)} style={{...G,padding:"14px 18px",cursor:"pointer",transition:"all 0.3s",display:"flex",alignItems:"center",gap:14,borderColor:sel?u.c+"50":"rgba(255,255,255,0.05)",background:sel?u.c+"08":"transparent"}}
+                  onMouseEnter={e=>{if(!sel)e.currentTarget.style.borderColor=u.c+"30";}} onMouseLeave={e=>{if(!sel)e.currentTarget.style.borderColor="rgba(255,255,255,0.05)";}}>
+                  {sel&&<div style={{width:22,height:22,borderRadius:"50%",background:u.c,display:"flex",alignItems:"center",justifyContent:"center",fontSize:11,color:"#fff",flexShrink:0}}>✓</div>}
+                  <span style={{fontSize:28}}>{u.icon}</span>
+                  <div style={{flex:1}}>
+                    <div style={{fontSize:14,fontWeight:800}}>{u.label}</div>
+                    <div style={{fontSize:11,color:"#64748b"}}>{u.sub}</div>
+                  </div>
+                  <span style={{fontSize:12,fontWeight:800,color:u.c}}>{u.opp}</span>
+                </div>
+              );})}
+            </div>
           </div>
 
-          {/* ── SECTION 1: USP → Creator ── */}
-          <div style={{marginBottom:40}}>
-            <div style={{display:"flex",alignItems:"center",gap:10,marginBottom:20}}>
-              <div style={{width:6,height:24,borderRadius:3,background:"#3b82f6"}} />
-              <div>
-                <div style={{fontSize:18,fontWeight:900}}>USP → 크리에이터 매칭</div>
-                <div style={{fontSize:12,color:"#64748b",marginTop:2}}>각 USP를 가장 잘 전달할 수 있는 비자동차 카테고리 크리에이터</div>
-              </div>
+          {/* Tier 2 */}
+          <div style={{marginBottom:28}}>
+            <div style={{display:"flex",alignItems:"center",gap:8,marginBottom:14}}>
+              <span style={{fontSize:11,fontWeight:800,color:"#3b82f6",letterSpacing:2,textTransform:"uppercase"}}>주요 USP</span>
             </div>
-            {(crResult.uspMatch||[]).map((cr,i) => (
-              <div key={i} style={{...G,padding:0,marginBottom:14,overflow:"hidden"}}>
-                <div style={{display:"flex"}}>
-                  <div style={{width:200,flexShrink:0,padding:20,background:"rgba(59,130,246,0.03)",borderRight:"1px solid rgba(255,255,255,0.04)",display:"flex",flexDirection:"column",gap:8}}>
-                    <div style={{display:"flex",alignItems:"center",gap:6}}>
-                      <span style={{fontSize:18}}>{cr.categoryIcon}</span>
-                      <span style={{fontSize:11,fontWeight:700,color:"#3b82f6"}}>{cr.category}</span>
-                    </div>
-                    <div><div style={{fontSize:15,fontWeight:900,marginBottom:3}}>{cr.channelName}</div><div style={{fontSize:11,color:"#64748b"}}>{cr.channelDesc}</div></div>
-                    <div style={{fontSize:12,fontWeight:700,color:"#94a3b8",marginTop:"auto"}}>구독 {cr.subscribers}</div>
+            <div style={{display:"grid",gridTemplateColumns:"repeat(4,1fr)",gap:12}}>
+              {USPS.filter(u=>u.tier===2).map(u=>{const sel=crUsps.find(p=>p.id===u.id); return (
+                <div key={u.id} onClick={()=>toggleCrUsp(u)} style={{...G,padding:14,cursor:"pointer",transition:"all 0.3s",borderColor:sel?u.c+"50":"rgba(255,255,255,0.05)",background:sel?u.c+"08":"transparent"}}
+                  onMouseEnter={e=>{if(!sel)e.currentTarget.style.borderColor=u.c+"30";}} onMouseLeave={e=>{if(!sel)e.currentTarget.style.borderColor="rgba(255,255,255,0.05)";}}>
+                  <div style={{display:"flex",alignItems:"center",justifyContent:"space-between",marginBottom:8}}>
+                    <span style={{fontSize:24}}>{u.icon}</span>
+                    {sel&&<div style={{width:18,height:18,borderRadius:"50%",background:u.c,display:"flex",alignItems:"center",justifyContent:"center",fontSize:9,color:"#fff"}}>✓</div>}
                   </div>
-                  <div style={{flex:1,padding:20}}>
-                    <div style={{display:"flex",alignItems:"center",gap:8,marginBottom:12}}>
-                      <div style={{width:26,height:26,borderRadius:"50%",background:"linear-gradient(135deg,#3b82f6,#06b6d4)",display:"flex",alignItems:"center",justifyContent:"center",fontSize:11,fontWeight:900,color:"#fff"}}>{i+1}</div>
-                      <Tag c="#3b82f6">{cr.uspCombination}</Tag>
-                    </div>
-                    <div style={{fontSize:12,color:"#94a3b8",marginBottom:10}}>{cr.uspReason}</div>
-                    <div style={{...G,padding:14,marginBottom:10,borderColor:"rgba(59,130,246,0.1)",background:"rgba(59,130,246,0.03)"}}>
-                      <div style={{fontSize:14,fontWeight:800,marginBottom:4}}>{cr.collabTitle}</div>
-                      <div style={{fontSize:12,color:"#94a3b8",lineHeight:1.6}}>{cr.collabConcept}</div>
-                    </div>
-                    <div style={{display:"flex",gap:6}}><Tag c="#06b6d4">{cr.format}</Tag><span style={{fontSize:11,color:"#475569",display:"flex",alignItems:"center",gap:4}}>📊 {cr.impact}</span></div>
-                  </div>
+                  <div style={{fontSize:12,fontWeight:700}}>{u.label}</div>
+                  <div style={{fontSize:10,color:"#475569"}}>{u.tag}</div>
+                </div>
+              );})}
+            </div>
+          </div>
+
+          {/* Tier 3 */}
+          <div style={{marginBottom:32}}>
+            <div style={{display:"flex",alignItems:"center",gap:8,marginBottom:14}}>
+              <span style={{fontSize:11,fontWeight:800,color:"#64748b",letterSpacing:2,textTransform:"uppercase"}}>추가 USP</span>
+            </div>
+            <div style={{display:"grid",gridTemplateColumns:"repeat(4,1fr)",gap:12}}>
+              {USPS.filter(u=>u.tier===3).map(u=>{const sel=crUsps.find(p=>p.id===u.id); return (
+                <div key={u.id} onClick={()=>toggleCrUsp(u)} style={{...G,padding:"12px 14px",cursor:"pointer",transition:"all 0.3s",display:"flex",alignItems:"center",gap:10,borderColor:sel?u.c+"50":"rgba(255,255,255,0.05)",background:sel?u.c+"08":"transparent"}}
+                  onMouseEnter={e=>{if(!sel)e.currentTarget.style.borderColor="rgba(255,255,255,0.12)";}} onMouseLeave={e=>{if(!sel)e.currentTarget.style.borderColor="rgba(255,255,255,0.05)";}}>
+                  <span style={{fontSize:20}}>{u.icon}</span>
+                  <div><div style={{fontSize:11,fontWeight:700}}>{u.label}</div><div style={{fontSize:10,color:"#475569"}}>{u.tag}</div></div>
+                  {sel&&<div style={{marginLeft:"auto",width:16,height:16,borderRadius:"50%",background:u.c,display:"flex",alignItems:"center",justifyContent:"center",fontSize:8,color:"#fff"}}>✓</div>}
+                </div>
+              );})}
+            </div>
+          </div>
+
+          {/* CTA */}
+          <div style={{textAlign:"center",padding:20}}>
+            <Btn onClick={runCreatorMatch} disabled={crUsps.length===0||loading} c="135deg,#f59e0b,#d97706">
+              {loading?"⏳ AI 분석 중...":crUsps.length===0?"USP를 선택하세요":`🤝 ${crUsps.map(u=>u.icon).join("+")} AI 크리에이터 매칭 분석`}
+            </Btn>
+          </div>
+        </>}
+
+        {/* STEP 1: Creator Recommendations (Mega + Micro) */}
+        {crStep>=1&&crUsps.length>0&&<>
+          {/* Selected USP bar */}
+          <div style={{...G,padding:"14px 20px",marginBottom:24,display:"flex",alignItems:"center",gap:12,flexWrap:"wrap"}}>
+            <span style={{fontSize:13,fontWeight:800}}>선택된 USP:</span>
+            {crUsps.map(u=><Tag key={u.id} c={u.c}>{u.icon} {u.label}</Tag>)}
+            {!loading&&crStep<2&&<button onClick={()=>{setCrStep(0);setCrResult(null);setCrPickedIdx(null);}} style={{marginLeft:"auto",padding:"8px 16px",borderRadius:8,border:"1px solid rgba(255,255,255,0.08)",background:"transparent",color:"#64748b",fontSize:12,cursor:"pointer",fontFamily:FONT}}>← 다른 USP</button>}
+          </div>
+
+          {crStep===1&&crResult&&<>
+            <div style={{display:"flex",alignItems:"center",gap:12,marginBottom:20}}>
+              <span style={{fontSize:17,fontWeight:900}}>• AI 추천 크리에이터</span>
+              <Tag c="#f59e0b">AI 실시간 생성</Tag>
+              <button onClick={runCreatorMatch} style={{marginLeft:"auto",padding:"7px 18px",borderRadius:8,border:"1px solid rgba(255,255,255,0.08)",background:"transparent",color:"#64748b",fontSize:12,cursor:"pointer",fontFamily:FONT}}>↻ 다른 크리에이터 추천</button>
+            </div>
+
+            {/* ── SECTION A: Mega ── */}
+            <div style={{marginBottom:32}}>
+              <div style={{display:"flex",alignItems:"center",gap:10,marginBottom:16}}>
+                <div style={{width:6,height:24,borderRadius:3,background:"#f59e0b"}} />
+                <div>
+                  <div style={{fontSize:16,fontWeight:900}}>메가 인플루언서 <span style={{fontSize:12,fontWeight:500,color:"#64748b"}}>구독자 50만+</span></div>
+                  <div style={{fontSize:11,color:"#64748b"}}>도달력 + 브랜드 임팩트</div>
                 </div>
               </div>
-            ))}
-          </div>
-
-          {/* ── SECTION 2: Celeb → Story ── */}
-          <div>
-            <div style={{display:"flex",alignItems:"center",gap:10,marginBottom:20}}>
-              <div style={{width:6,height:24,borderRadius:3,background:"#f59e0b"}} />
-              <div>
-                <div style={{fontSize:18,fontWeight:900}}>셀럽 → 스토리 설계</div>
-                <div style={{fontSize:12,color:"#64748b",marginTop:2}}>타겟이 겹치는 셀럽/메가 유튜버 + ZEEKR 7X가 자연스럽게 녹아드는 스토리 앵글</div>
+              <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:12}}>
+                {(crResult.mega||[]).map((cr,i)=>{const idx=i; const picked=crPickedIdx===idx; return (
+                  <div key={i} onClick={()=>setCrPickedIdx(idx)} style={{...G,padding:18,cursor:"pointer",transition:"all 0.25s",borderColor:picked?"rgba(245,158,11,0.5)":"rgba(255,255,255,0.05)",boxShadow:picked?"0 0 0 1px rgba(245,158,11,0.3)":"none"}}
+                    onMouseEnter={e=>{if(!picked)e.currentTarget.style.borderColor="rgba(245,158,11,0.2)";}} onMouseLeave={e=>{if(!picked)e.currentTarget.style.borderColor=picked?"rgba(245,158,11,0.5)":"rgba(255,255,255,0.05)";}}>
+                    {picked&&<div style={{position:"absolute",top:8,right:8,width:20,height:20,borderRadius:"50%",background:"#f59e0b",display:"flex",alignItems:"center",justifyContent:"center",fontSize:10,color:"#fff"}}>✓</div>}
+                    <div style={{display:"flex",alignItems:"center",gap:8,marginBottom:10}}>
+                      <span style={{fontSize:20}}>{cr.categoryIcon}</span>
+                      <Tag c="#f59e0b">{cr.category}</Tag>
+                      <span style={{fontSize:11,color:"#64748b",marginLeft:"auto"}}>구독 {cr.subscribers}</span>
+                    </div>
+                    <div style={{fontSize:15,fontWeight:900,marginBottom:4}}>{cr.channelName}</div>
+                    <div style={{fontSize:11,color:"#64748b",marginBottom:10}}>{cr.channelDesc}</div>
+                    <div style={{fontSize:11,color:"#f59e0b",fontWeight:600,marginBottom:4}}>📎 {cr.matchReason}</div>
+                    <div style={{fontSize:11,color:"#94a3b8"}}>{cr.collabDirection}</div>
+                  </div>
+                );})}
               </div>
             </div>
-            {(crResult.celebMatch||[]).map((cr,i) => (
-              <div key={i} style={{...G,padding:0,marginBottom:14,overflow:"hidden"}}>
-                <div style={{display:"flex"}}>
-                  <div style={{width:200,flexShrink:0,padding:20,background:"rgba(245,158,11,0.03)",borderRight:"1px solid rgba(255,255,255,0.04)",display:"flex",flexDirection:"column",gap:8}}>
-                    <span style={{fontSize:20}}>⭐</span>
-                    <div><div style={{fontSize:15,fontWeight:900,marginBottom:3}}>{cr.channelName}</div><div style={{fontSize:11,color:"#64748b"}}>{cr.channelDesc}</div></div>
-                    <div style={{fontSize:12,fontWeight:700,color:"#94a3b8",marginTop:"auto"}}>구독 {cr.subscribers}</div>
-                  </div>
-                  <div style={{flex:1,padding:20}}>
-                    <div style={{fontSize:12,color:"#f59e0b",fontWeight:700,marginBottom:8}}>🎯 타겟 오버랩: {cr.targetOverlap}</div>
-                    <div style={{...G,padding:14,marginBottom:10,borderColor:"rgba(245,158,11,0.1)",background:"rgba(245,158,11,0.03)"}}>
-                      <div style={{fontSize:14,fontWeight:800,color:"#fbbf24",marginBottom:6}}>📐 "{cr.storyAngle}"</div>
-                      <div style={{fontSize:13,color:"#e2e8f0",lineHeight:1.65}}>{cr.storyDetail}</div>
-                    </div>
-                    <div style={{display:"flex",gap:6,flexWrap:"wrap"}}><Tag c="#f59e0b">{cr.format}</Tag><Tag c="#3b82f6">{cr.uspHighlight}</Tag><span style={{fontSize:11,color:"#475569",display:"flex",alignItems:"center",gap:4}}>📊 {cr.impact}</span></div>
-                  </div>
+
+            {/* ── SECTION B: Micro ── */}
+            <div style={{marginBottom:32}}>
+              <div style={{display:"flex",alignItems:"center",gap:10,marginBottom:16}}>
+                <div style={{width:6,height:24,borderRadius:3,background:"#06b6d4"}} />
+                <div>
+                  <div style={{fontSize:16,fontWeight:900}}>마이크로 인플루언서 <span style={{fontSize:12,fontWeight:500,color:"#64748b"}}>구독자 1만~50만</span></div>
+                  <div style={{fontSize:11,color:"#64748b"}}>니치 타겟 + 전환율</div>
                 </div>
               </div>
-            ))}
-          </div>
+              <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:12}}>
+                {(crResult.micro||[]).map((cr,i)=>{const idx=(crResult.mega||[]).length+i; const picked=crPickedIdx===idx; return (
+                  <div key={i} onClick={()=>setCrPickedIdx(idx)} style={{...G,padding:18,cursor:"pointer",transition:"all 0.25s",borderColor:picked?"rgba(6,182,212,0.5)":"rgba(255,255,255,0.05)",boxShadow:picked?"0 0 0 1px rgba(6,182,212,0.3)":"none"}}
+                    onMouseEnter={e=>{if(!picked)e.currentTarget.style.borderColor="rgba(6,182,212,0.2)";}} onMouseLeave={e=>{if(!picked)e.currentTarget.style.borderColor=picked?"rgba(6,182,212,0.5)":"rgba(255,255,255,0.05)";}}>
+                    {picked&&<div style={{position:"absolute",top:8,right:8,width:20,height:20,borderRadius:"50%",background:"#06b6d4",display:"flex",alignItems:"center",justifyContent:"center",fontSize:10,color:"#fff"}}>✓</div>}
+                    <div style={{display:"flex",alignItems:"center",gap:8,marginBottom:10}}>
+                      <span style={{fontSize:20}}>{cr.categoryIcon}</span>
+                      <Tag c="#06b6d4">{cr.category}</Tag>
+                      <span style={{fontSize:11,color:"#64748b",marginLeft:"auto"}}>구독 {cr.subscribers}</span>
+                    </div>
+                    <div style={{fontSize:15,fontWeight:900,marginBottom:4}}>{cr.channelName}</div>
+                    <div style={{fontSize:11,color:"#64748b",marginBottom:10}}>{cr.channelDesc}</div>
+                    <div style={{fontSize:11,color:"#06b6d4",fontWeight:600,marginBottom:4}}>📎 {cr.matchReason}</div>
+                    <div style={{fontSize:11,color:"#94a3b8"}}>{cr.collabDirection}</div>
+                  </div>
+                );})}
+              </div>
+            </div>
+
+            {/* Bottom CTA */}
+            <div style={{display:"flex",gap:12,justifyContent:"center",padding:"20px 0",borderTop:"1px solid rgba(255,255,255,0.04)"}}>
+              <button onClick={runCreatorMatch} style={{padding:"12px 26px",borderRadius:10,border:"1px solid rgba(255,255,255,0.08)",background:"transparent",color:"#94a3b8",fontSize:13,cursor:"pointer",fontFamily:FONT}}>↻ 다른 크리에이터 추천</button>
+              <button onClick={runCreatorScenario} disabled={crPickedIdx===null||loading}
+                style={{padding:"14px 36px",borderRadius:12,border:"none",
+                  background:crPickedIdx===null?"#1e293b":"linear-gradient(135deg,#f59e0b,#d97706)",
+                  color:crPickedIdx===null?"#475569":"#fff",fontSize:14,fontWeight:700,
+                  cursor:crPickedIdx===null?"not-allowed":"pointer",fontFamily:FONT,
+                  boxShadow:crPickedIdx===null?"none":"0 6px 24px rgba(245,158,11,0.2)"}}>
+                {loading?"⏳ 생성 중...":crPickedIdx===null?"크리에이터를 선택하세요":"🎬 선택한 크리에이터로 콘텐츠 시나리오 생성"}
+              </button>
+            </div>
+          </>}
+
+          {/* STEP 2: Content Scenario */}
+          {crStep===2&&crScenario&&<>
+            {(() => { const allCr=[...(crResult?.mega||[]),...(crResult?.micro||[])]; const cr=allCr[crPickedIdx]; return cr ? (
+              <div style={{...G,padding:"16px 24px",marginBottom:24,display:"flex",alignItems:"center",gap:14,borderColor:"rgba(245,158,11,0.15)"}}>
+                <span style={{fontSize:24}}>{cr.categoryIcon}</span>
+                <div><div style={{fontSize:16,fontWeight:800}}>{cr.channelName}</div><div style={{fontSize:11,color:"#64748b"}}>{cr.channelDesc} · 구독 {cr.subscribers}</div></div>
+              </div>
+            ) : null; })()}
+
+            {/* Main Story (Long-form) */}
+            <div style={{...G,padding:0,marginBottom:24,overflow:"hidden"}}>
+              <div style={{padding:"16px 24px",borderBottom:"1px solid rgba(255,255,255,0.04)",display:"flex",alignItems:"center",gap:10}}>
+                <span style={{fontSize:18}}>🎬</span>
+                <span style={{fontSize:17,fontWeight:900}}>메인 스토리</span>
+                <Tag c="#f59e0b">{crScenario.mainStory.format}</Tag>
+              </div>
+              <div style={{padding:24}}>
+                <div style={{fontSize:20,fontWeight:900,marginBottom:16}}>{crScenario.mainStory.title}</div>
+                <div style={{...G,padding:16,marginBottom:16,borderColor:"rgba(245,158,11,0.1)"}}>
+                  <div style={{fontSize:10,fontWeight:800,color:"#f59e0b",marginBottom:8}}>📐 스토리라인</div>
+                  <div style={{fontSize:13,color:"#e2e8f0",lineHeight:1.75,whiteSpace:"pre-wrap"}}>{crScenario.mainStory.storyline}</div>
+                </div>
+                <div style={{...G,padding:16,marginBottom:16,borderColor:"rgba(59,130,246,0.1)"}}>
+                  <div style={{fontSize:10,fontWeight:800,color:"#3b82f6",marginBottom:8}}>🎯 USP 노출 포인트</div>
+                  <div style={{fontSize:13,color:"#94a3b8",lineHeight:1.75}}>{crScenario.mainStory.uspExposure}</div>
+                </div>
+                <div style={{fontSize:12,color:"#64748b",display:"flex",alignItems:"center",gap:6}}>
+                  <span style={{color:"#10b981"}}>📊</span> {crScenario.mainStory.expectedImpact}
+                </div>
+              </div>
+            </div>
+
+            {/* Linked Shorts */}
+            <div style={{marginBottom:24}}>
+              <div style={{display:"flex",alignItems:"center",gap:10,marginBottom:16}}>
+                <span style={{fontSize:16}}>⚡</span>
+                <span style={{fontSize:17,fontWeight:900}}>연계 숏폼 콘텐츠</span>
+                <span style={{fontSize:11,color:"#64748b"}}>메인 영상에서 파생 · 알고리즘 최적화</span>
+              </div>
+              <div style={{display:"grid",gridTemplateColumns:"repeat(3,1fr)",gap:16}}>
+                {(crScenario.linkedShorts||[]).map((sf,i)=>(
+                  <div key={i} style={{...G,padding:0,overflow:"hidden",display:"flex",flexDirection:"column"}}>
+                    <div style={{padding:"12px 16px",borderBottom:"1px solid rgba(255,255,255,0.04)",display:"flex",alignItems:"center",gap:6}}>
+                      <span style={{color:sf.platform?.includes("Shorts")?"#ef4444":"#a78bfa",fontWeight:900,fontSize:13}}>{sf.platform?.includes("Shorts")?"▶":"◉"}</span>
+                      <span style={{fontSize:12,fontWeight:700}}>{sf.platform}</span>
+                    </div>
+                    <div style={{padding:16,flex:1,display:"flex",flexDirection:"column"}}>
+                      <div style={{fontSize:15,fontWeight:800,marginBottom:10}}>"{sf.hook}"</div>
+                      <div style={{fontSize:11,color:"#64748b",marginBottom:12}}>{sf.concept}</div>
+                      <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:6,marginBottom:12}}>
+                        {(sf.scenes||[]).map((s,j)=>
+                          <div key={j} style={{padding:"6px 8px",borderRadius:6,border:"1px solid rgba(255,255,255,0.04)",background:"rgba(255,255,255,0.015)"}}>
+                            <div style={{fontSize:8,fontWeight:800,color:"#60a5fa",marginBottom:2}}>씬{j+1}</div>
+                            <div style={{fontSize:10,color:"#94a3b8",lineHeight:1.4}}>{s}</div>
+                          </div>
+                        )}
+                      </div>
+                      <div style={{marginTop:"auto",fontSize:10,color:"#475569",padding:"8px 0",borderTop:"1px solid rgba(255,255,255,0.04)"}}>
+                        <span style={{color:"#10b981",fontWeight:700}}>📡</span> {sf.algorithmSignal}
+                      </div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            {/* Actions */}
+            <div style={{display:"flex",gap:12,justifyContent:"center",marginTop:28}}>
+              <button onClick={()=>{setCrScenario(null);runCreatorScenario();}} style={{padding:"12px 26px",borderRadius:10,border:"1px solid rgba(255,255,255,0.08)",background:"transparent",color:"#94a3b8",fontSize:13,cursor:"pointer",fontFamily:FONT}}>↻ 같은 크리에이터 재생성</button>
+              <button onClick={()=>{setCrStep(1);setCrScenario(null);setCrPickedIdx(null);}} style={{padding:"12px 26px",borderRadius:10,border:"1px solid rgba(255,255,255,0.08)",background:"transparent",color:"#94a3b8",fontSize:13,cursor:"pointer",fontFamily:FONT}}>◎ 다른 크리에이터 선택</button>
+              <button onClick={()=>{setCrStep(0);setCrResult(null);setCrPickedIdx(null);setCrScenario(null);}} style={{padding:"12px 26px",borderRadius:10,border:"1px solid rgba(255,255,255,0.08)",background:"transparent",color:"#94a3b8",fontSize:13,cursor:"pointer",fontFamily:FONT}}>← 다른 USP</button>
+            </div>
+          </>}
         </>}
       </div>}
 
