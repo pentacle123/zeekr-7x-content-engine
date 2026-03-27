@@ -107,16 +107,17 @@ export default function App() {
   const [selCr, setSelCr] = useState(null);
   const [jResults, setJResults] = useState(null);
   
-  const [crStep, setCrStep] = useState(0); // creator step: 0=button screen, 1=idea list, 2=scenario
+  const [crMode, setCrMode] = useState(null); // "usp" | "influencer" | null
+  const [crStep, setCrStep] = useState(0); // 0=select approach, 1=idea list, 2=scenario
   const [crIdeas, setCrIdeas] = useState(null); // Step1 result array
-  const [crPickedIdx, setCrPickedIdx] = useState(null); // selected idea index
+  const [crPickedIdx, setCrPickedIdx] = useState(null); // selected card index
   const [crScenario, setCrScenario] = useState(null); // Step2 result
 
   useEffect(() => setMounted(true), []);
-  const goHome = () => { setView("home"); setStep(0); setSelUsp(null); setContexts(null); setPickedIdx(null); setSfResult(null); setJResults(null); setCrStep(0); setCrIdeas(null); setCrPickedIdx(null); setCrScenario(null); };
+  const goHome = () => { setView("home"); setStep(0); setSelUsp(null); setContexts(null); setPickedIdx(null); setSfResult(null); setJResults(null); setCrMode(null); setCrStep(0); setCrIdeas(null); setCrPickedIdx(null); setCrScenario(null); };
   const goEngine = () => { setView("engine"); setStep(0); setSelUsp(null); setContexts(null); setPickedIdx(null); setSfResult(null); };
   const goJourney = () => { setView("journey"); setJResults(null); setSelJ(null); setSelCr(null); };
-  const goCreator = () => { setView("creator"); setCrStep(0); setCrIdeas(null); setCrPickedIdx(null); setCrScenario(null); };
+  const goCreator = () => { setView("creator"); setCrMode(null); setCrStep(0); setCrIdeas(null); setCrPickedIdx(null); setCrScenario(null); };
   const selectUsp = (u) => { setSelUsp(u); setStep(1); setContexts(null); setPickedIdx(null); setSfResult(null); };
 
   const runContextMatch = useCallback(async () => {
@@ -150,43 +151,57 @@ Shorts+Reels JSON:
     setSfResult(typeof r === "object" && r.shorts ? r : null); setLoading(false);
   }, [selUsp, contexts, pickedIdx]);
 
-  const runCreatorMatch = useCallback(async () => {
-    setLoading(true); setCrIdeas(null); setCrPickedIdx(null); setCrScenario(null); setCrStep(1);
+  const runCreatorMatch = useCallback(async (mode) => {
+    setCrMode(mode); setLoading(true); setCrIdeas(null); setCrPickedIdx(null); setCrScenario(null); setCrStep(1);
     const uspList = USPS.map(u => `${u.icon}${u.label}(${u.sub}, 스코어:${u.opp}, WHO:${u.ctx.who.join(",")}, PAIN:${u.ctx.pain.join(",")}, INTEREST:${u.ctx.interest.join(",")})`).join("\n");
-    const r = await callAI(
-      "ZEEKR 7X 크리에이터 협업 전략가. 반드시 순수 JSON 배열만 반환. markdown 코드블록 없이. 한국어.",
-      `ZEEKR 7X 12개 USP 전체:
-${uspList}
 
-위 12개 USP를 분석해서, USP를 단일 또는 조합(2~3개)으로 묶어 5개 콘텐츠 아이디어를 도출하고, 각 아이디어에 최적 크리에이터를 매칭해.
+    if (mode === "usp") {
+      const r = await callAI(
+        "ZEEKR 7X 크리에이터 협업 전략가. 반드시 순수 JSON 배열만 반환. markdown 코드블록 없이. 한국어.",
+        `ZEEKR 7X 12개 USP 전체:\n${uspList}\n\nUSP를 단일 또는 조합하여 설득적으로 소구할 수 있는 콘텐츠 스토리 아이디어 10개를 개발하고, 각 아이디어를 실행할 최적의 메가(50만+) 2명 + 마이크로(1~50만) 2명 크리에이터를 매칭해.
 JSON 배열:
-[{"score":93,"ideaTitle":"콘텐츠 아이디어 제목 (예: 텐트 없이 7X에서 1박 — 아이스크림도 안 녹는 차박)","ideaConcept":"아이디어 컨셉 1~2줄","uspUsed":["🧊 차량 냉장고","🏕️ 호텔급 차박"],
-"mega":[{"name":"실제 한국 유튜브 채널명","subs":"구독자수(50만+)","category":"캠핑/육아/테크/과학/셀럽 등 자동차 외","reason":"이 아이디어에 왜 맞는지 1줄"},{"name":"채널명2","subs":"구독자수","category":"카테고리","reason":"매칭 이유"}],
+[{"score":93,"ideaTitle":"콘텐츠 아이디어 제목","ideaConcept":"아이디어 컨셉 1~2줄","uspUsed":["🧊 차량 냉장고","🏕️ 호텔급 차박"],
+"mega":[{"name":"실제 한국 유튜브 채널명","subs":"구독자수(50만+)","category":"자동차 외 카테고리","reason":"매칭 이유 1줄"},{"name":"채널명2","subs":"구독자수","category":"카테고리","reason":"매칭 이유"}],
 "micro":[{"name":"실제 한국 유튜브 채널명","subs":"구독자수(1만~50만)","category":"니치 카테고리","reason":"매칭 이유"},{"name":"채널명2","subs":"구독자수","category":"카테고리","reason":"매칭 이유"}]}]
-5개 아이디어: 각각 다른 USP 조합, 다른 카테고리. score 82~97. 자동차 유튜버만이 아닌 캠핑/육아/테크/과학/ASMR/여행/먹방/셀럽 등 다양한 카테고리. 매번 다른 결과.`
-    );
-    setCrIdeas(Array.isArray(r) ? r : null); setLoading(false);
+10개. 각각 다른 USP 조합, 다른 카테고리. score 82~97. 캠핑/육아/테크/과학/ASMR/여행/먹방/셀럽 등 다양하게. 같은 크리에이터 중복 최소화. 매번 다른 결과.`
+      );
+      setCrIdeas(Array.isArray(r) ? r : null);
+    } else {
+      const r = await callAI(
+        "ZEEKR 7X 인플루언서 매칭 전략가. 반드시 순수 JSON 배열만 반환. markdown 코드블록 없이. 한국어.",
+        `ZEEKR 7X 12개 USP 전체:\n${uspList}\n\nZEEKR 7X 타겟(30~40대, 가족, 얼리어답터, 프리미엄 관심층)과 시청자가 겹치는 영향력 높은 한국 유튜브 인플루언서 10명을 선정하고, 각 인플루언서의 콘텐츠 스타일에 맞춰 12개 USP 중 적합한 것을 골라 그 인플루언서가 자연스럽게 시도해볼 수 있는 콘텐츠 스토리를 도출해.
+JSON 배열:
+[{"channelName":"실제 한국 유튜브 채널명","subs":"구독자수","tier":"MEGA|MICRO","category":"카테고리","channelStyle":"콘텐츠 스타일 특징 1줄","uspUsed":["🏕️ 호텔급 차박","🧊 차량 냉장고"],
+"storyTitle":"이 인플루언서용 콘텐츠 스토리 제목","storyConcept":"이 인플루언서 스타일에 맞춘 콘텐츠 컨셉 1~2줄"}]
+10명: MEGA(50만+) 5명 + MICRO(1~50만) 5명. 자동차/캠핑/육아/테크/과학/셀럽/라이프스타일 다양하게. 매번 다른 인플루언서.`
+      );
+      setCrIdeas(Array.isArray(r) ? r : null);
+    }
+    setLoading(false);
   }, []);
 
   const runCreatorScenario = useCallback(async () => {
     if (crPickedIdx === null || !crIdeas) return;
     setLoading(true); setCrScenario(null); setCrStep(2);
-    const idea = crIdeas[crPickedIdx];
-    const crList = [...(idea.mega||[]),...(idea.micro||[])].map(c=>`${c.name}(${c.subs}, ${c.category})`).join(", ");
+    const item = crIdeas[crPickedIdx];
+
+    let scenarioPrompt;
+    if (crMode === "usp") {
+      const crList = [...(item.mega||[]),...(item.micro||[])].map(c=>`${c.name}(${c.subs}, ${c.category})`).join(", ");
+      scenarioPrompt = `콘텐츠 아이디어: "${item.ideaTitle}"\n컨셉: ${item.ideaConcept}\n활용 USP: ${(item.uspUsed||[]).join(", ")}\n크리에이터: ${crList}`;
+    } else {
+      scenarioPrompt = `인플루언서: "${item.channelName}" (${item.subs}, ${item.category}, 스타일: ${item.channelStyle})\n콘텐츠 스토리: "${item.storyTitle}"\n컨셉: ${item.storyConcept}\n활용 USP: ${(item.uspUsed||[]).join(", ")}`;
+    }
+
     const r = await callAI(
       "ZEEKR 7X 크리에이터 콘텐츠 시나리오 프로듀서. 반드시 순수 JSON만 반환. markdown 코드블록 없이. 한국어.",
-      `콘텐츠 아이디어: "${idea.ideaTitle}"
-컨셉: ${idea.ideaConcept}
-활용 USP: ${(idea.uspUsed||[]).join(", ")}
-크리에이터: ${crList}
-
-메인 스토리(롱폼) 1개 + 연계 숏폼 3개 JSON:
-{"mainStory":{"title":"콘텐츠 제목","creator":"메인 크리에이터명 (메가 중심)","format":"롱폼 15~20분|시리즈|라이브","storyline":"구체적 시나리오 4~5줄. 해당 크리에이터 콘텐츠 스타일에 맞춤","uspExposure":"어느 장면에서 어떤 USP가 어떻게 자연스럽게 노출되는지 2줄","expectedImpact":"예상 조회수/효과 1줄"},
+      `${scenarioPrompt}\n\n메인 스토리(롱폼) 1개 + 연계 숏폼 3개 JSON:
+{"mainStory":{"title":"콘텐츠 제목","creator":"메인 크리에이터명","format":"롱폼 15~20분|시리즈|라이브","storyline":"구체적 시나리오 4~5줄. 해당 크리에이터 콘텐츠 스타일에 맞춤","uspExposure":"어느 장면에서 어떤 USP가 어떻게 자연스럽게 노출되는지 2줄","expectedImpact":"예상 조회수/효과 1줄"},
 "linkedShorts":[{"platform":"YouTube Shorts|Instagram Reels","derivedFrom":"하이라이트|비하인드|리액션","hook":"후킹카피 20자이내","concept":"이 숏폼의 핵심장면 요약 1줄","hookScore":"★★★|★★☆|★☆☆","valueScore":"★★★|★★☆|★☆☆","retentionScore":"★★★|★★☆|★☆☆"}]}
-linkedShorts 3개: 메인 영상에서 파생. 각각 다른 파생유형(하이라이트/비하인드/리액션). 메가+마이크로 크리에이터 모두 활용 가능.`
+linkedShorts 3개: 메인 영상에서 파생. 각각 다른 파생유형(하이라이트/비하인드/리액션).`
     );
     setCrScenario(typeof r === "object" && r.mainStory ? r : null); setLoading(false);
-  }, [crIdeas, crPickedIdx]);
+  }, [crIdeas, crPickedIdx, crMode]);
 
   const runJourney = useCallback(async (j, c) => {
     setLoading(true); setJResults(null);
@@ -518,11 +533,11 @@ linkedShorts 3개: 메인 영상에서 파생. 각각 다른 파생유형(하이
         {jResults&&jResults.map((r,i)=><div key={i} style={{...G,padding:24,marginBottom:14,display:"flex",gap:18,alignItems:"flex-start"}}><ScoreBadge n={r.score}/><div style={{flex:1}}><div style={{fontSize:15,fontWeight:800,marginBottom:6}}>{r.title}</div><div style={{display:"flex",gap:6,marginBottom:10}}><Tag c="#06b6d4">{r.keyword}</Tag></div><div style={{fontSize:14,fontWeight:700,color:"#f59e0b",marginBottom:10}}>🎣 "{r.hook}"</div><div style={{fontSize:13,color:"#64748b",lineHeight:1.75,whiteSpace:"pre-wrap"}}>{r.overview}</div><div style={{fontSize:12,color:"#64748b",marginTop:10,fontStyle:"italic"}}>{r.why}</div><div style={{display:"flex",gap:6,marginTop:12}}>{(r.proofPoints||[]).map((p,j)=><Tag key={j} c="#10b981">{p}</Tag>)}</div></div></div>)}
       </div>}
 
-      {/* ═══ CREATOR MATCHING (Idea-first, no USP selection) ═══ */}
+      {/* ═══ CREATOR MATCHING (Dual Approach: USP-based / Influencer-based) ═══ */}
       {view==="creator"&&<div style={{maxWidth:MAX_W,margin:"0 auto",padding:`40px ${PX}px 80px`}}>
-        {/* Progress */}
+        {/* Progress Stepper */}
         {crStep>0&&<div style={{display:"flex",alignItems:"center",justifyContent:"center",marginBottom:40,padding:"16px 0"}}>
-          {[{n:1,l:"아이디어 도출"},{n:2,l:"콘텐츠 시나리오"}].map((s,i)=>
+          {[{n:1,l:crMode==="usp"?"아이디어 도출":"인플루언서 매칭"},{n:2,l:"콘텐츠 시나리오"}].map((s,i)=>
             <div key={i} style={{display:"flex",alignItems:"center"}}>
               <div style={{display:"flex",alignItems:"center",gap:8}}>
                 <div style={{width:30,height:30,borderRadius:"50%",background:crStep>=i+1?"linear-gradient(135deg,#f59e0b,#d97706)":"#f1f5f9",border:crStep>=i+1?"none":"1px solid #e5e7eb",display:"flex",alignItems:"center",justifyContent:"center",fontSize:12,fontWeight:800,color:crStep>=i+1?"#fff":"#475569"}}>{s.n}</div>
@@ -533,38 +548,71 @@ linkedShorts 3개: 메인 영상에서 파생. 각각 다른 파생유형(하이
           )}
         </div>}
 
-        {/* STEP 0: Button Screen */}
+        {/* STEP 0: Dual Approach Selection */}
         {crStep===0&&<>
-          <div style={{paddingTop:40,paddingBottom:40,textAlign:"center"}}>
+          <div style={{paddingTop:40,paddingBottom:20,textAlign:"center"}}>
             <h2 style={{fontSize:28,fontWeight:900,marginBottom:12}}>🤝 크리에이터 매칭</h2>
-            <p style={{fontSize:14,color:"#64748b",lineHeight:1.75,maxWidth:600,margin:"0 auto 16px"}}>ZEEKR 7X의 12개 USP를 AI가 자동 분석하여<br/>USP 조합별 콘텐츠 아이디어 + 최적 크리에이터를 매칭합니다.</p>
-            <p style={{fontSize:12,color:"#475569",maxWidth:500,margin:"0 auto 40px"}}>차 유튜버만이 아닌 캠핑·육아·테크·과학·ASMR·셀럽까지 —<br/>매번 버튼을 누를 때마다 새로운 조합이 나옵니다.</p>
-
-            <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:16,maxWidth:560,margin:"0 auto 40px"}}>
-              <div style={{...G,padding:20,borderColor:"rgba(245,158,11,0.12)"}}>
-                <div style={{fontSize:11,fontWeight:800,color:"#f59e0b",letterSpacing:1.5,marginBottom:8}}>STEP 1</div>
-                <div style={{fontSize:14,fontWeight:800,marginBottom:4}}>콘텐츠 아이디어 도출</div>
-                <div style={{fontSize:11,color:"#64748b",lineHeight:1.6}}>AI가 12개 USP를 조합해 5개 아이디어를 만들고, 각각 메가+마이크로 크리에이터를 매칭</div>
+            <p style={{fontSize:14,color:"#64748b",lineHeight:1.75,maxWidth:620,margin:"0 auto 12px"}}>ZEEKR 7X의 12개 USP를 AI가 자동 분석하여<br/>최적의 크리에이터 협업 전략을 설계합니다.</p>
+            <p style={{fontSize:12,color:"#475569",maxWidth:500,margin:"0 auto 44px"}}>두 가지 접근법 중 하나를 선택하세요. 매번 버튼을 누를 때마다 새로운 결과가 나옵니다.</p>
+          </div>
+          <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:24,maxWidth:780,margin:"0 auto"}}>
+            {/* Approach A: USP-based */}
+            <div style={{...G,padding:0,overflow:"hidden",transition:"all 0.3s",cursor:"default"}}
+              onMouseEnter={e=>{e.currentTarget.style.borderColor="rgba(245,158,11,0.4)";e.currentTarget.style.transform="translateY(-3px)";}}
+              onMouseLeave={e=>{e.currentTarget.style.borderColor="#e5e7eb";e.currentTarget.style.transform="none";}}>
+              <div style={{padding:"28px 28px 0"}}>
+                <div style={{display:"flex",alignItems:"center",gap:10,marginBottom:16}}>
+                  <div style={{width:40,height:40,borderRadius:10,background:"linear-gradient(135deg,#f59e0b,#d97706)",display:"flex",alignItems:"center",justifyContent:"center",fontSize:18}}>🎯</div>
+                  <div>
+                    <div style={{fontSize:11,fontWeight:800,color:"#f59e0b",letterSpacing:1.5}}>APPROACH A</div>
+                    <div style={{fontSize:17,fontWeight:900}}>USP 기반</div>
+                  </div>
+                </div>
+                <div style={{fontSize:14,fontWeight:700,marginBottom:8,color:"#0f172a"}}>콘텐츠 아이디어 도출</div>
+                <div style={{fontSize:12,color:"#64748b",lineHeight:1.75,marginBottom:20}}>AI가 12개 USP를 조합해 설득적으로 소구할 수 있는 스토리 아이디어를 개발하고 최적 크리에이터를 매칭</div>
+                <div style={{display:"flex",gap:6,flexWrap:"wrap",marginBottom:20}}>
+                  <Tag c="#f59e0b">USP 조합 → 아이디어</Tag><Tag c="#f59e0b">메가+마이크로 매칭</Tag>
+                </div>
               </div>
-              <div style={{...G,padding:20,borderColor:"rgba(168,85,247,0.12)"}}>
-                <div style={{fontSize:11,fontWeight:800,color:"#a78bfa",letterSpacing:1.5,marginBottom:8}}>STEP 2</div>
-                <div style={{fontSize:14,fontWeight:800,marginBottom:4}}>콘텐츠 시나리오 생성</div>
-                <div style={{fontSize:11,color:"#64748b",lineHeight:1.6}}>선택한 아이디어를 메인 스토리(롱폼) + 연계 숏폼 3개 패키지로 확장</div>
+              <div style={{padding:"0 28px 28px",textAlign:"center"}}>
+                <Btn onClick={()=>runCreatorMatch("usp")} disabled={loading} c="135deg,#f59e0b,#d97706">
+                  {loading?"⏳ AI 분석 중...":"🤝 AI 분석 시작"}
+                </Btn>
               </div>
             </div>
-
-            <Btn onClick={runCreatorMatch} disabled={loading} c="135deg,#f59e0b,#d97706">
-              {loading?"⏳ AI가 12개 USP를 분석 중...":"🤝 AI 크리에이터 매칭 분석"}
-            </Btn>
+            {/* Approach B: Influencer-based */}
+            <div style={{...G,padding:0,overflow:"hidden",transition:"all 0.3s",cursor:"default"}}
+              onMouseEnter={e=>{e.currentTarget.style.borderColor="rgba(168,85,247,0.4)";e.currentTarget.style.transform="translateY(-3px)";}}
+              onMouseLeave={e=>{e.currentTarget.style.borderColor="#e5e7eb";e.currentTarget.style.transform="none";}}>
+              <div style={{padding:"28px 28px 0"}}>
+                <div style={{display:"flex",alignItems:"center",gap:10,marginBottom:16}}>
+                  <div style={{width:40,height:40,borderRadius:10,background:"linear-gradient(135deg,#a78bfa,#7c3aed)",display:"flex",alignItems:"center",justifyContent:"center",fontSize:18}}>⭐</div>
+                  <div>
+                    <div style={{fontSize:11,fontWeight:800,color:"#a78bfa",letterSpacing:1.5}}>APPROACH B</div>
+                    <div style={{fontSize:17,fontWeight:900}}>인플루언서 기반</div>
+                  </div>
+                </div>
+                <div style={{fontSize:14,fontWeight:700,marginBottom:8,color:"#0f172a"}}>콘텐츠 스토리 도출</div>
+                <div style={{fontSize:12,color:"#64748b",lineHeight:1.75,marginBottom:20}}>영향력 높은 인플루언서를 먼저 선정하고, 12개 USP를 분석해 그 인플루언서가 시도해볼 수 있는 콘텐츠 스토리를 도출</div>
+                <div style={{display:"flex",gap:6,flexWrap:"wrap",marginBottom:20}}>
+                  <Tag c="#a78bfa">인플루언서 → 스토리</Tag><Tag c="#a78bfa">채널 스타일 맞춤</Tag>
+                </div>
+              </div>
+              <div style={{padding:"0 28px 28px",textAlign:"center"}}>
+                <Btn onClick={()=>runCreatorMatch("influencer")} disabled={loading} c="135deg,#a78bfa,#7c3aed">
+                  {loading?"⏳ AI 분석 중...":"🤝 AI 분석 시작"}
+                </Btn>
+              </div>
+            </div>
           </div>
         </>}
 
-        {/* STEP 1: Idea Cards (5개) */}
-        {crStep===1&&crIdeas&&<>
+        {/* STEP 1 — USP Mode: 10 Idea Cards */}
+        {crStep===1&&crIdeas&&crMode==="usp"&&<>
           <div style={{display:"flex",alignItems:"center",gap:12,marginBottom:24}}>
-            <span style={{fontSize:17,fontWeight:900}}>• AI 추천 콘텐츠 아이디어 TOP {crIdeas.length}</span>
+            <span style={{fontSize:17,fontWeight:900}}>🎯 USP 기반 콘텐츠 아이디어 TOP {crIdeas.length}</span>
             <Tag c="#f59e0b">AI 실시간 생성</Tag>
-            <button onClick={runCreatorMatch} style={{marginLeft:"auto",padding:"7px 18px",borderRadius:8,border:"1px solid #e5e7eb",background:"transparent",color:"#64748b",fontSize:12,cursor:"pointer",fontFamily:FONT}}>↻ 다른 조합으로 재분석</button>
+            <button onClick={()=>runCreatorMatch("usp")} disabled={loading} style={{marginLeft:"auto",padding:"7px 18px",borderRadius:8,border:"1px solid #e5e7eb",background:"transparent",color:"#64748b",fontSize:12,cursor:"pointer",fontFamily:FONT}}>↻ 다른 조합으로 재분석</button>
           </div>
 
           {crIdeas.map((idea,i)=>{
@@ -576,7 +624,6 @@ linkedShorts 3개: 메인 영상에서 파생. 각각 다른 파생유형(하이
                   boxShadow:picked?"0 0 0 1px rgba(245,158,11,0.3), 0 4px 20px rgba(245,158,11,0.08)":"none"
                 }}>
                 <div style={{padding:"20px 28px"}}>
-                  {/* Title + Score */}
                   <div style={{display:"flex",alignItems:"flex-start",gap:14,marginBottom:14}}>
                     <div style={{width:28,height:28,borderRadius:"50%",background:picked?"linear-gradient(135deg,#f59e0b,#d97706)":"rgba(245,158,11,0.1)",display:"flex",alignItems:"center",justifyContent:"center",fontSize:12,fontWeight:900,color:picked?"#fff":"#f59e0b",flexShrink:0}}>{i+1}</div>
                     <div style={{flex:1}}>
@@ -585,15 +632,10 @@ linkedShorts 3개: 메인 영상에서 파생. 각각 다른 파생유형(하이
                     </div>
                     <ScoreBadge n={idea.score} />
                   </div>
-
-                  {/* USP Used */}
                   <div style={{display:"flex",gap:6,flexWrap:"wrap",marginBottom:16}}>
                     {(idea.uspUsed||[]).map((u,j)=><Tag key={j} c="#f59e0b">{u}</Tag>)}
                   </div>
-
-                  {/* Mega + Micro in two columns */}
                   <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:16}}>
-                    {/* Mega */}
                     <div>
                       <div style={{fontSize:10,fontWeight:800,color:"#f59e0b",marginBottom:8,display:"flex",alignItems:"center",gap:4}}>🎬 메가 인플루언서 <span style={{color:"#64748b",fontWeight:500}}>(도달 확장)</span></div>
                       {(idea.mega||[]).map((cr,j)=>(
@@ -607,7 +649,6 @@ linkedShorts 3개: 메인 영상에서 파생. 각각 다른 파생유형(하이
                         </div>
                       ))}
                     </div>
-                    {/* Micro */}
                     <div>
                       <div style={{fontSize:10,fontWeight:800,color:"#06b6d4",marginBottom:8,display:"flex",alignItems:"center",gap:4}}>🎯 마이크로 인플루언서 <span style={{color:"#64748b",fontWeight:500}}>(전환 최적화)</span></div>
                       {(idea.micro||[]).map((cr,j)=>(
@@ -627,9 +668,8 @@ linkedShorts 3개: 메인 영상에서 파생. 각각 다른 파생유형(하이
             );
           })}
 
-          {/* Bottom CTA */}
           <div style={{display:"flex",gap:12,justifyContent:"center",marginTop:28,padding:"20px 0",borderTop:"1px solid #f1f5f9"}}>
-            <button onClick={runCreatorMatch} style={{padding:"12px 26px",borderRadius:10,border:"1px solid #e5e7eb",background:"transparent",color:"#64748b",fontSize:13,cursor:"pointer",fontFamily:FONT}}>↻ 다른 조합으로 재분석</button>
+            <button onClick={()=>runCreatorMatch("usp")} disabled={loading} style={{padding:"12px 26px",borderRadius:10,border:"1px solid #e5e7eb",background:"transparent",color:"#64748b",fontSize:13,cursor:"pointer",fontFamily:FONT}}>↻ 다른 조합으로 재분석</button>
             <button onClick={runCreatorScenario} disabled={crPickedIdx===null||loading}
               style={{padding:"14px 36px",borderRadius:12,border:"none",
                 background:crPickedIdx===null?"#f1f5f9":"linear-gradient(135deg,#f59e0b,#d97706)",
@@ -641,14 +681,73 @@ linkedShorts 3개: 메인 영상에서 파생. 각각 다른 파생유형(하이
           </div>
         </>}
 
-        {/* STEP 2: Content Scenario */}
+        {/* STEP 1 — Influencer Mode: 10 Influencer Cards */}
+        {crStep===1&&crIdeas&&crMode==="influencer"&&<>
+          <div style={{display:"flex",alignItems:"center",gap:12,marginBottom:24}}>
+            <span style={{fontSize:17,fontWeight:900}}>⭐ AI 추천 인플루언서 TOP {crIdeas.length}</span>
+            <Tag c="#a78bfa">AI 실시간 생성</Tag>
+            <button onClick={()=>runCreatorMatch("influencer")} disabled={loading} style={{marginLeft:"auto",padding:"7px 18px",borderRadius:8,border:"1px solid #e5e7eb",background:"transparent",color:"#64748b",fontSize:12,cursor:"pointer",fontFamily:FONT}}>↻ 다른 인플루언서 추천</button>
+          </div>
+
+          {crIdeas.map((inf,i)=>{
+            const picked = crPickedIdx===i;
+            const isMega = inf.tier==="MEGA";
+            return (
+              <div key={i} onClick={()=>setCrPickedIdx(i)}
+                style={{...G,padding:0,marginBottom:16,overflow:"hidden",cursor:"pointer",transition:"all 0.25s",
+                  borderColor:picked?"rgba(168,85,247,0.5)":"#e5e7eb",
+                  boxShadow:picked?"0 0 0 1px rgba(168,85,247,0.3), 0 4px 20px rgba(168,85,247,0.08)":"none"
+                }}>
+                <div style={{padding:"20px 28px"}}>
+                  {/* Header: channel info + tier badge */}
+                  <div style={{display:"flex",alignItems:"flex-start",gap:14,marginBottom:14}}>
+                    <div style={{width:28,height:28,borderRadius:"50%",background:picked?"linear-gradient(135deg,#a78bfa,#7c3aed)":"rgba(168,85,247,0.1)",display:"flex",alignItems:"center",justifyContent:"center",fontSize:12,fontWeight:900,color:picked?"#fff":"#a78bfa",flexShrink:0}}>{i+1}</div>
+                    <div style={{flex:1}}>
+                      <div style={{display:"flex",alignItems:"center",gap:8,marginBottom:4}}>
+                        <span style={{fontSize:16,fontWeight:800}}>{inf.channelName}</span>
+                        <span style={{fontSize:10,fontWeight:800,padding:"2px 8px",borderRadius:4,background:isMega?"linear-gradient(135deg,#f59e0b,#d97706)":"linear-gradient(135deg,#06b6d4,#0891b2)",color:"#fff"}}>{inf.tier}</span>
+                      </div>
+                      <div style={{fontSize:12,color:"#64748b"}}>{inf.subs} · {inf.category}</div>
+                      <div style={{fontSize:11,color:"#475569",marginTop:4,fontStyle:"italic"}}>{inf.channelStyle}</div>
+                    </div>
+                  </div>
+                  {/* USP tags */}
+                  <div style={{display:"flex",gap:6,flexWrap:"wrap",marginBottom:14}}>
+                    {(inf.uspUsed||[]).map((u,j)=><Tag key={j} c="#a78bfa">{u}</Tag>)}
+                  </div>
+                  {/* Story */}
+                  <div style={{...G,padding:"14px 18px",borderColor:"rgba(168,85,247,0.08)",background:"rgba(168,85,247,0.02)"}}>
+                    <div style={{fontSize:14,fontWeight:800,marginBottom:6,color:"#0f172a"}}>{inf.storyTitle}</div>
+                    <div style={{fontSize:12,color:"#64748b",lineHeight:1.65}}>{inf.storyConcept}</div>
+                  </div>
+                </div>
+              </div>
+            );
+          })}
+
+          <div style={{display:"flex",gap:12,justifyContent:"center",marginTop:28,padding:"20px 0",borderTop:"1px solid #f1f5f9"}}>
+            <button onClick={()=>runCreatorMatch("influencer")} disabled={loading} style={{padding:"12px 26px",borderRadius:10,border:"1px solid #e5e7eb",background:"transparent",color:"#64748b",fontSize:13,cursor:"pointer",fontFamily:FONT}}>↻ 다른 인플루언서 추천</button>
+            <button onClick={runCreatorScenario} disabled={crPickedIdx===null||loading}
+              style={{padding:"14px 36px",borderRadius:12,border:"none",
+                background:crPickedIdx===null?"#f1f5f9":"linear-gradient(135deg,#a78bfa,#7c3aed)",
+                color:crPickedIdx===null?"#9ca3af":"#fff",fontSize:14,fontWeight:700,
+                cursor:crPickedIdx===null?"not-allowed":"pointer",fontFamily:FONT,
+                boxShadow:crPickedIdx===null?"none":"0 6px 24px rgba(168,85,247,0.2)"}}>
+              {loading?"⏳ 생성 중...":crPickedIdx===null?"인플루언서를 선택하세요":"🎬 선택한 인플루언서로 콘텐츠 시나리오 생성"}
+            </button>
+          </div>
+        </>}
+
+        {/* STEP 2: Content Scenario (shared for both modes) */}
         {crStep===2&&crScenario&&<>
-          {/* Selected idea bar */}
-          {crIdeas&&crIdeas[crPickedIdx]&&<div style={{...G,padding:"16px 24px",marginBottom:24,display:"flex",alignItems:"center",gap:14,borderColor:"rgba(245,158,11,0.15)"}}>
-            <ScoreBadge n={crIdeas[crPickedIdx].score} />
+          {/* Selected item bar */}
+          {crIdeas&&crIdeas[crPickedIdx]&&<div style={{...G,padding:"16px 24px",marginBottom:24,display:"flex",alignItems:"center",gap:14,borderColor:crMode==="usp"?"rgba(245,158,11,0.15)":"rgba(168,85,247,0.15)"}}>
+            {crMode==="usp"&&<ScoreBadge n={crIdeas[crPickedIdx].score} />}
+            {crMode==="influencer"&&<div style={{width:36,height:36,borderRadius:"50%",background:"linear-gradient(135deg,#a78bfa,#7c3aed)",display:"flex",alignItems:"center",justifyContent:"center",fontSize:14,color:"#fff",fontWeight:900}}>⭐</div>}
             <div style={{flex:1}}>
-              <div style={{fontSize:16,fontWeight:800}}>{crIdeas[crPickedIdx].ideaTitle}</div>
-              <div style={{display:"flex",gap:5,marginTop:6}}>{(crIdeas[crPickedIdx].uspUsed||[]).map((u,j)=><Tag key={j} c="#f59e0b">{u}</Tag>)}</div>
+              <div style={{fontSize:16,fontWeight:800}}>{crMode==="usp"?crIdeas[crPickedIdx].ideaTitle:crIdeas[crPickedIdx].channelName}</div>
+              {crMode==="influencer"&&<div style={{fontSize:12,color:"#64748b",marginTop:2}}>{crIdeas[crPickedIdx].subs} · {crIdeas[crPickedIdx].category}</div>}
+              <div style={{display:"flex",gap:5,marginTop:6}}>{(crIdeas[crPickedIdx].uspUsed||[]).map((u,j)=><Tag key={j} c={crMode==="usp"?"#f59e0b":"#a78bfa"}>{u}</Tag>)}</div>
             </div>
           </div>}
 
@@ -676,7 +775,7 @@ linkedShorts 3개: 메인 영상에서 파생. 각각 다른 파생유형(하이
             </div>
           </div>
 
-          {/* Linked Shorts with Algorithm Signal stars */}
+          {/* Linked Shorts */}
           <div style={{marginBottom:24}}>
             <div style={{display:"flex",alignItems:"center",gap:10,marginBottom:16}}>
               <span style={{fontSize:16}}>⚡</span>
@@ -696,7 +795,6 @@ linkedShorts 3개: 메인 영상에서 파생. 각각 다른 파생유형(하이
                   <div style={{padding:16,flex:1,display:"flex",flexDirection:"column"}}>
                     <div style={{fontSize:15,fontWeight:800,marginBottom:8}}>"{sf.hook}"</div>
                     <div style={{fontSize:11,color:"#64748b",marginBottom:14,lineHeight:1.5}}>{sf.concept}</div>
-                    {/* Algorithm Signal Stars */}
                     <div style={{marginTop:"auto",padding:"10px 0 0",borderTop:"1px solid #f1f5f9",display:"flex",flexDirection:"column",gap:6}}>
                       {[["🎣","Hook",sf.hookScore,"#f59e0b"],["💎","Value",sf.valueScore,"#3b82f6"],["🔄","Retention",sf.retentionScore,"#10b981"]].map(([ic,label,score,clr],j)=>(
                         <div key={j} style={{display:"flex",alignItems:"center",gap:8}}>
@@ -714,8 +812,8 @@ linkedShorts 3개: 메인 영상에서 파생. 각각 다른 파생유형(하이
 
           {/* Actions */}
           <div style={{display:"flex",gap:12,justifyContent:"center",marginTop:28}}>
-            <button onClick={()=>{setCrScenario(null);runCreatorScenario();}} style={{padding:"12px 26px",borderRadius:10,border:"1px solid #e5e7eb",background:"transparent",color:"#64748b",fontSize:13,cursor:"pointer",fontFamily:FONT}}>↻ 같은 아이디어로 재생성</button>
-            <button onClick={()=>{setCrStep(1);setCrScenario(null);setCrPickedIdx(null);}} style={{padding:"12px 26px",borderRadius:10,border:"1px solid #e5e7eb",background:"transparent",color:"#64748b",fontSize:13,cursor:"pointer",fontFamily:FONT}}>◎ 다른 아이디어 선택</button>
+            <button onClick={()=>{setCrScenario(null);runCreatorScenario();}} style={{padding:"12px 26px",borderRadius:10,border:"1px solid #e5e7eb",background:"transparent",color:"#64748b",fontSize:13,cursor:"pointer",fontFamily:FONT}}>↻ 같은 {crMode==="usp"?"아이디어":"인플루언서"}로 재생성</button>
+            <button onClick={()=>{setCrStep(1);setCrScenario(null);setCrPickedIdx(null);}} style={{padding:"12px 26px",borderRadius:10,border:"1px solid #e5e7eb",background:"transparent",color:"#64748b",fontSize:13,cursor:"pointer",fontFamily:FONT}}>◎ 다른 {crMode==="usp"?"아이디어":"인플루언서"} 선택</button>
             <button style={{padding:"12px 30px",borderRadius:10,background:"linear-gradient(135deg,#a78bfa,#7c3aed)",border:"none",color:"#fff",fontSize:13,fontWeight:700,cursor:"pointer",fontFamily:FONT}}>🎥 촬영 스토리보드 생성</button>
           </div>
         </>}
