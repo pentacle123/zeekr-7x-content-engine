@@ -47,10 +47,10 @@ async function callAI(sys, usr) {
 }
 
 /* ═══ UI PRIMITIVES ═══ */
-const G = {background:"rgba(255,255,255,0.025)",backdropFilter:"blur(20px)",border:"1px solid rgba(255,255,255,0.05)",borderRadius:14};
-const Tag = ({c="#3b82f6",children}) => <span style={{display:"inline-block",padding:"4px 11px",borderRadius:20,fontSize:11,fontWeight:600,background:c+"18",color:c,border:`1px solid ${c}28`,whiteSpace:"nowrap"}}>{children}</span>;
-const ScoreBadge = ({n}) => <div style={{width:48,height:48,borderRadius:12,background:(n>=90?"#10b981":n>=80?"#3b82f6":"#f59e0b")+"15",border:`2px solid ${n>=90?"#10b981":n>=80?"#3b82f6":"#f59e0b"}`,display:"flex",alignItems:"center",justifyContent:"center",fontSize:19,fontWeight:900,color:n>=90?"#10b981":n>=80?"#3b82f6":"#f59e0b",flexShrink:0}}>{n}</div>;
-const Btn = ({onClick,disabled,children,c="135deg,#3b82f6,#2563eb"}) => <button onClick={onClick} disabled={disabled} style={{padding:"14px 40px",borderRadius:12,border:"none",background:disabled?"#1e293b":`linear-gradient(${c})`,color:disabled?"#475569":"#fff",fontSize:14,fontWeight:700,cursor:disabled?"not-allowed":"pointer",fontFamily:FONT,boxShadow:disabled?"none":"0 6px 24px rgba(59,130,246,0.18)",transition:"all 0.3s"}}>{children}</button>;
+const G = {background:"#ffffff",border:"1px solid #e5e7eb",borderRadius:16,boxShadow:"0 1px 3px rgba(0,0,0,0.04)"};
+const Tag = ({c="#3b82f6",children}) => <span style={{display:"inline-block",padding:"4px 11px",borderRadius:20,fontSize:11,fontWeight:600,background:c+"12",color:c,border:`1px solid ${c}20`,whiteSpace:"nowrap"}}>{children}</span>;
+const ScoreBadge = ({n}) => <div style={{width:48,height:48,borderRadius:12,background:(n>=90?"#10b981":n>=80?"#3b82f6":"#f59e0b")+"10",border:`2px solid ${n>=90?"#10b981":n>=80?"#3b82f6":"#f59e0b"}`,display:"flex",alignItems:"center",justifyContent:"center",fontSize:19,fontWeight:900,color:n>=90?"#10b981":n>=80?"#3b82f6":"#f59e0b",flexShrink:0}}>{n}</div>;
+const Btn = ({onClick,disabled,children,c="135deg,#3b82f6,#2563eb"}) => <button onClick={onClick} disabled={disabled} style={{padding:"14px 40px",borderRadius:12,border:"none",background:disabled?"#f1f5f9":`linear-gradient(${c})`,color:disabled?"#9ca3af":"#fff",fontSize:14,fontWeight:700,cursor:disabled?"not-allowed":"pointer",fontFamily:FONT,boxShadow:disabled?"none":"0 6px 24px rgba(59,130,246,0.18)",transition:"all 0.3s"}}>{children}</button>;
 
 /* ── Phone Mockup (Enhanced style) ── */
 const PhoneMock = ({hook, typeName, color="#10b981"}) => {
@@ -197,31 +197,31 @@ linkedShorts 3개: 메인 영상에서 파생. 각각 다른 파생유형(하이
   }, []);
 
   return (
-    <div style={{fontFamily:FONT,background:"#06080e",color:"#e2e8f0",minHeight:"100vh"}}>
+    <div style={{fontFamily:FONT,background:"#f8fafc",color:"#1e293b",minHeight:"100vh"}}>
       {/* NAV */}
-      <nav style={{position:"sticky",top:0,zIndex:100,background:"rgba(6,8,14,0.92)",backdropFilter:"blur(24px)",borderBottom:"1px solid rgba(255,255,255,0.04)"}}>
+      <nav style={{position:"sticky",top:0,zIndex:100,background:"rgba(255,255,255,0.92)",backdropFilter:"blur(24px)",borderBottom:"1px solid #e5e7eb"}}>
         <div style={{maxWidth:MAX_W,margin:"0 auto",padding:`14px ${PX}px`,display:"flex",alignItems:"center",justifyContent:"space-between"}}>
           <div style={{display:"flex",alignItems:"center",gap:12,cursor:"pointer"}} onClick={goHome}>
             <div style={{width:36,height:36,borderRadius:8,background:"linear-gradient(135deg,#3b82f6,#06b6d4)",display:"flex",alignItems:"center",justifyContent:"center",fontSize:14,fontWeight:900,color:"#fff"}}>7X</div>
-            <div><div style={{fontSize:15,fontWeight:800,letterSpacing:-0.3}}>ZEEKR 7X Content Engine</div><div style={{fontSize:9,color:"#475569",letterSpacing:2.5,textTransform:"uppercase"}}>Algorithm Performance Platform</div></div>
+            <div><div style={{fontSize:15,fontWeight:800,letterSpacing:-0.3,color:"#0f172a"}}>ZEEKR 7X Content Engine</div><div style={{fontSize:9,color:"#475569",letterSpacing:2.5,textTransform:"uppercase"}}>Algorithm Performance Platform</div></div>
           </div>
           {view!=="home"&&<div style={{display:"flex",gap:4}}>
-            <button onClick={goEngine} style={{padding:"8px 18px",borderRadius:8,border:"none",background:view==="engine"?"rgba(59,130,246,0.15)":"transparent",color:view==="engine"?"#60a5fa":"#64748b",fontSize:12,fontWeight:view==="engine"?700:500,cursor:"pointer",fontFamily:FONT}}>⚡ 알고리즘 콘텐츠 엔진</button>
-            <button onClick={goCreator} style={{padding:"8px 18px",borderRadius:8,border:"none",background:view==="creator"?"rgba(245,158,11,0.15)":"transparent",color:view==="creator"?"#fbbf24":"#64748b",fontSize:12,fontWeight:view==="creator"?700:500,cursor:"pointer",fontFamily:FONT}}>🤝 크리에이터 매칭</button>
-            <button onClick={goJourney} style={{padding:"8px 18px",borderRadius:8,border:"none",background:view==="journey"?"rgba(16,185,129,0.15)":"transparent",color:view==="journey"?"#34d399":"#64748b",fontSize:12,fontWeight:view==="journey"?700:500,cursor:"pointer",fontFamily:FONT}}>🗺️ 탐색 여정 콘텐츠 맵</button>
+            <button onClick={goEngine} style={{padding:"8px 18px",borderRadius:8,border:"none",background:view==="engine"?"rgba(59,130,246,0.08)":"transparent",color:view==="engine"?"#3b82f6":"#64748b",fontSize:12,fontWeight:view==="engine"?700:500,cursor:"pointer",fontFamily:FONT}}>⚡ 알고리즘 콘텐츠 엔진</button>
+            <button onClick={goCreator} style={{padding:"8px 18px",borderRadius:8,border:"none",background:view==="creator"?"rgba(245,158,11,0.08)":"transparent",color:view==="creator"?"#d97706":"#64748b",fontSize:12,fontWeight:view==="creator"?700:500,cursor:"pointer",fontFamily:FONT}}>🤝 크리에이터 매칭</button>
+            <button onClick={goJourney} style={{padding:"8px 18px",borderRadius:8,border:"none",background:view==="journey"?"rgba(16,185,129,0.08)":"transparent",color:view==="journey"?"#059669":"#64748b",fontSize:12,fontWeight:view==="journey"?700:500,cursor:"pointer",fontFamily:FONT}}>🗺️ 탐색 여정 콘텐츠 맵</button>
           </div>}
-          <div style={{fontSize:10,color:"#334155",minWidth:80,textAlign:"right"}}>Pentacle × AI</div>
+          <div style={{fontSize:10,color:"#64748b",minWidth:80,textAlign:"right"}}>Pentacle × AI</div>
         </div>
       </nav>
 
       {/* HOME */}
       {view==="home"&&<div style={{maxWidth:MAX_W,margin:"0 auto",padding:`0 ${PX}px`}}>
         <div style={{paddingTop:80,paddingBottom:60,position:"relative"}}>
-          <div style={{position:"absolute",top:-60,right:-80,width:420,height:420,borderRadius:"50%",background:"radial-gradient(circle,rgba(59,130,246,0.07),transparent 70%)",pointerEvents:"none"}} />
+          <div style={{position:"absolute",top:-60,right:-80,width:420,height:420,borderRadius:"50%",background:"radial-gradient(circle,rgba(59,130,246,0.04),transparent 70%)",pointerEvents:"none"}} />
           <div style={{maxWidth:680,position:"relative"}}>
             <div style={{fontSize:11,fontWeight:700,color:"#3b82f6",letterSpacing:3,textTransform:"uppercase",marginBottom:20,opacity:mounted?1:0,transition:"all 0.6s ease 0.1s"}}>Algorithm Content Engine</div>
             <h1 style={{fontSize:44,fontWeight:900,lineHeight:1.18,letterSpacing:-1.5,opacity:mounted?1:0,transition:"all 0.8s ease 0.2s"}}><span>ZEEKR 7X의 USP를</span><br/><span style={{background:"linear-gradient(135deg,#3b82f6,#06b6d4)",WebkitBackgroundClip:"text",WebkitTextFillColor:"transparent"}}>알고리즘이 사랑하는 콘텐츠</span><span>로</span></h1>
-            <p style={{fontSize:15,color:"#64748b",lineHeight:1.75,marginTop:20,maxWidth:560,opacity:mounted?1:0,transition:"all 0.6s ease 0.4s"}}>12개 Vehicle USP에서 AI가 관심사 + 맥락을 분석하여 숏폼을 생성하고,<br/>소비자 탐색 여정 단계별 <strong style={{color:"#94a3b8"}}>검색 → 비교 → 구매 확신</strong>까지의<br/>콘텐츠 전략을 자동으로 설계합니다.</p>
+            <p style={{fontSize:15,color:"#64748b",lineHeight:1.75,marginTop:20,maxWidth:560,opacity:mounted?1:0,transition:"all 0.6s ease 0.4s"}}>12개 Vehicle USP에서 AI가 관심사 + 맥락을 분석하여 숏폼을 생성하고,<br/>소비자 탐색 여정 단계별 <strong style={{color:"#64748b"}}>검색 → 비교 → 구매 확신</strong>까지의<br/>콘텐츠 전략을 자동으로 설계합니다.</p>
           </div>
           <div style={{display:"grid",gridTemplateColumns:"repeat(4,1fr)",marginTop:48,maxWidth:480,opacity:mounted?1:0,transition:"all 0.6s ease 0.5s"}}>
             {[["12","USPs"],["6","Context Axes"],["3×3","Journey Map"],["∞","Contents"]].map(([n,l],i)=><div key={i} style={{textAlign:"center"}}><div style={{fontSize:28,fontWeight:900}}>{n}</div><div style={{fontSize:10,fontWeight:700,color:"#3b82f6",letterSpacing:1.5,marginTop:6}}>{l}</div></div>)}
@@ -231,7 +231,7 @@ linkedShorts 3개: 메인 영상에서 파생. 각각 다른 파생유형(하이
           {[{fn:goEngine,ic:"⚡",t:"알고리즘 콘텐츠 엔진",d:"USP별 6축 맥락 분석 → TOP 5 맥락 추천 → Shorts + Reels 원스톱 생성",tags:["6축 맥락매칭","스코어링","Shorts + Reels"],a:"#3b82f6"},
             {fn:goCreator,ic:"🤝",t:"크리에이터 매칭",d:"USP를 자동차 밖의 크리에이터와 연결. 캠핑·육아·테크·셀럽 채널과의 협업 아이디어를 설계",tags:["USP×크리에이터","비자동차 채널","협업 콘텐츠"],a:"#f59e0b"},
             {fn:goJourney,ic:"🗺️",t:"탐색 여정 콘텐츠 맵",d:"검색→비교→구매확신 여정별 브랜드·인플루언서·UGC 콘텐츠 자동 설계",tags:["구매여정 3단계","크리에이터 3타입"],a:"#10b981"}
-          ].map((f,i)=><div key={i} onClick={f.fn} style={{...G,padding:32,cursor:"pointer",transition:"all 0.35s",display:"flex",flexDirection:"column",opacity:mounted?1:0,transitionDelay:`${0.55+i*0.1}s`}} onMouseEnter={e=>{e.currentTarget.style.borderColor=f.a+"30";e.currentTarget.style.transform="translateY(-3px)";}} onMouseLeave={e=>{e.currentTarget.style.borderColor="rgba(255,255,255,0.05)";e.currentTarget.style.transform="none";}}>
+          ].map((f,i)=><div key={i} onClick={f.fn} style={{...G,padding:32,cursor:"pointer",transition:"all 0.35s",display:"flex",flexDirection:"column",opacity:mounted?1:0,transitionDelay:`${0.55+i*0.1}s`}} onMouseEnter={e=>{e.currentTarget.style.borderColor=f.a+"30";e.currentTarget.style.transform="translateY(-3px)";}} onMouseLeave={e=>{e.currentTarget.style.borderColor="#e5e7eb";e.currentTarget.style.transform="none";}}>
             <div style={{fontSize:32,marginBottom:16}}>{f.ic}</div><div style={{fontSize:18,fontWeight:900,marginBottom:10}}>{f.t}</div><div style={{fontSize:13,color:"#64748b",lineHeight:1.75,flex:1}}>{f.d}</div>
             <div style={{display:"flex",gap:6,flexWrap:"wrap",margin:"16px 0"}}>{f.tags.map(t=><Tag key={t} c={f.a}>{t}</Tag>)}</div><div style={{fontSize:13,fontWeight:700,color:f.a}}>시작하기 →</div>
           </div>)}
@@ -245,10 +245,10 @@ linkedShorts 3개: 메인 영상에서 파생. 각각 다른 파생유형(하이
           {[{n:1,l:"USP 선택"},{n:2,l:"맥락 분석"},{n:3,l:"숏폼 제작"}].map((s,i)=>
             <div key={i} style={{display:"flex",alignItems:"center"}}>
               <div style={{display:"flex",alignItems:"center",gap:8}}>
-                <div style={{width:30,height:30,borderRadius:"50%",background:step>=i+1?"linear-gradient(135deg,#3b82f6,#06b6d4)":"rgba(255,255,255,0.04)",border:step>=i+1?"none":"1px solid rgba(255,255,255,0.08)",display:"flex",alignItems:"center",justifyContent:"center",fontSize:12,fontWeight:800,color:step>=i+1?"#fff":"#475569"}}>{s.n}</div>
-                <span style={{fontSize:13,fontWeight:step===i+1?800:500,color:step>=i+1?"#f1f5f9":"#475569"}}>{s.l}</span>
+                <div style={{width:30,height:30,borderRadius:"50%",background:step>=i+1?"linear-gradient(135deg,#3b82f6,#06b6d4)":"#f1f5f9",border:step>=i+1?"none":"1px solid #e5e7eb",display:"flex",alignItems:"center",justifyContent:"center",fontSize:12,fontWeight:800,color:step>=i+1?"#fff":"#475569"}}>{s.n}</div>
+                <span style={{fontSize:13,fontWeight:step===i+1?800:500,color:step>=i+1?"#0f172a":"#475569"}}>{s.l}</span>
               </div>
-              {i<2&&<div style={{width:80,height:1,background:step>i+1?"#3b82f6":"rgba(255,255,255,0.06)",margin:"0 20px"}} />}
+              {i<2&&<div style={{width:80,height:1,background:step>i+1?"#3b82f6":"#e5e7eb",margin:"0 20px"}} />}
             </div>
           )}
         </div>
@@ -268,9 +268,9 @@ linkedShorts 3개: 메인 영상에서 파생. 각각 다른 파생유형(하이
               {USPS.filter(u=>u.tier===1).map(u=>(
                 <div key={u.id} onClick={()=>selectUsp(u)} style={{...G,padding:0,cursor:"pointer",transition:"all 0.3s",overflow:"hidden",display:"flex"}}
                   onMouseEnter={e=>{e.currentTarget.style.borderColor=u.c+"40";e.currentTarget.style.transform="translateY(-2px)";}}
-                  onMouseLeave={e=>{e.currentTarget.style.borderColor="rgba(255,255,255,0.05)";e.currentTarget.style.transform="none";}}>
+                  onMouseLeave={e=>{e.currentTarget.style.borderColor="#e5e7eb";e.currentTarget.style.transform="none";}}>
                   {/* Left: Icon + Score */}
-                  <div style={{width:90,background:u.c+"08",display:"flex",flexDirection:"column",alignItems:"center",justifyContent:"center",gap:8,borderRight:"1px solid rgba(255,255,255,0.04)",padding:"20px 0"}}>
+                  <div style={{width:90,background:u.c+"06",display:"flex",flexDirection:"column",alignItems:"center",justifyContent:"center",gap:8,borderRight:"1px solid #f1f5f9",padding:"20px 0"}}>
                     <div style={{fontSize:36}}>{u.icon}</div>
                     <div style={{width:38,height:38,borderRadius:10,background:u.c+"20",border:`2px solid ${u.c}`,display:"flex",alignItems:"center",justifyContent:"center",fontSize:15,fontWeight:900,color:u.c}}>{u.opp}</div>
                   </div>
@@ -280,7 +280,7 @@ linkedShorts 3개: 메인 영상에서 파생. 각각 다른 파생유형(하이
                     <div style={{fontSize:11,color:"#64748b",marginBottom:10}}>{u.sub}</div>
                     <div style={{display:"flex",gap:5,flexWrap:"wrap",marginBottom:10}}>{u.specs.map((s,i)=><Tag key={i} c={u.c}>{s}</Tag>)}</div>
                     <div style={{fontSize:10,color:"#475569",display:"flex",alignItems:"center",gap:4}}><span style={{color:"#10b981"}}>📊</span>{u.search}</div>
-                    <div style={{fontSize:11,color:"#94a3b8",marginTop:6,lineHeight:1.5}}>{u.insight}</div>
+                    <div style={{fontSize:11,color:"#64748b",marginTop:6,lineHeight:1.5}}>{u.insight}</div>
                   </div>
                 </div>
               ))}
@@ -297,7 +297,7 @@ linkedShorts 3개: 메인 영상에서 파생. 각각 다른 파생유형(하이
               {USPS.filter(u=>u.tier===2).map(u=>(
                 <div key={u.id} onClick={()=>selectUsp(u)} style={{...G,padding:16,cursor:"pointer",transition:"all 0.3s"}}
                   onMouseEnter={e=>{e.currentTarget.style.borderColor=u.c+"35";e.currentTarget.style.transform="translateY(-2px)";}}
-                  onMouseLeave={e=>{e.currentTarget.style.borderColor="rgba(255,255,255,0.05)";e.currentTarget.style.transform="none";}}>
+                  onMouseLeave={e=>{e.currentTarget.style.borderColor="#e5e7eb";e.currentTarget.style.transform="none";}}>
                   <div style={{display:"flex",alignItems:"center",justifyContent:"space-between",marginBottom:10}}>
                     <span style={{fontSize:28}}>{u.icon}</span>
                     <span style={{fontSize:12,fontWeight:800,color:u.c}}>{u.opp}</span>
@@ -319,8 +319,8 @@ linkedShorts 3개: 메인 영상에서 파생. 각각 다른 파생유형(하이
             <div style={{display:"grid",gridTemplateColumns:"repeat(4,1fr)",gap:12}}>
               {USPS.filter(u=>u.tier===3).map(u=>(
                 <div key={u.id} onClick={()=>selectUsp(u)} style={{...G,padding:"14px 16px",cursor:"pointer",transition:"all 0.3s",display:"flex",alignItems:"center",gap:12}}
-                  onMouseEnter={e=>{e.currentTarget.style.borderColor="rgba(255,255,255,0.12)";}}
-                  onMouseLeave={e=>{e.currentTarget.style.borderColor="rgba(255,255,255,0.05)";}}>
+                  onMouseEnter={e=>{e.currentTarget.style.borderColor="#d1d5db";}}
+                  onMouseLeave={e=>{e.currentTarget.style.borderColor="#e5e7eb";}}>
                   <span style={{fontSize:22}}>{u.icon}</span>
                   <div>
                     <div style={{fontSize:12,fontWeight:700}}>{u.label}</div>
@@ -343,7 +343,7 @@ linkedShorts 3개: 메인 영상에서 파생. 각각 다른 파생유형(하이
               <div style={{display:"flex",gap:6,marginTop:8,flexWrap:"wrap"}}>{selUsp.specs.map((s,i)=><Tag key={i} c={selUsp.c}>{s}</Tag>)}</div>
             </div>
             {!loading&&step<3&&<button onClick={runContextMatch} style={{padding:"12px 28px",borderRadius:10,background:"linear-gradient(135deg,#06b6d4,#0891b2)",border:"none",color:"#fff",fontSize:13,fontWeight:700,cursor:"pointer",fontFamily:FONT,boxShadow:"0 4px 16px rgba(6,182,212,0.2)",whiteSpace:"nowrap"}}>◎ AI 맥락 매칭 실행</button>}
-            <button onClick={()=>{setStep(0);setSelUsp(null);setContexts(null);setPickedIdx(null);}} style={{padding:"8px 16px",borderRadius:8,border:"1px solid rgba(255,255,255,0.08)",background:"transparent",color:"#64748b",fontSize:12,cursor:"pointer",fontFamily:FONT}}>← 다른 USP</button>
+            <button onClick={()=>{setStep(0);setSelUsp(null);setContexts(null);setPickedIdx(null);}} style={{padding:"8px 16px",borderRadius:8,border:"1px solid #e5e7eb",background:"transparent",color:"#64748b",fontSize:12,cursor:"pointer",fontFamily:FONT}}>← 다른 USP</button>
           </div>
 
           {/* 6-Axis */}
@@ -365,7 +365,7 @@ linkedShorts 3개: 메인 영상에서 파생. 각각 다른 파생유형(하이
             <div style={{display:"flex",alignItems:"center",gap:12,marginBottom:20}}>
               <span style={{fontSize:17,fontWeight:900}}>• AI 추천 맥락 조합 TOP {contexts.length}</span>
               <Tag c="#06b6d4">AI 실시간 생성</Tag>
-              <button onClick={runContextMatch} style={{marginLeft:"auto",padding:"7px 18px",borderRadius:8,border:"1px solid rgba(255,255,255,0.08)",background:"transparent",color:"#64748b",fontSize:12,cursor:"pointer",fontFamily:FONT}}>↻ 재생성</button>
+              <button onClick={runContextMatch} style={{marginLeft:"auto",padding:"7px 18px",borderRadius:8,border:"1px solid #e5e7eb",background:"transparent",color:"#64748b",fontSize:12,cursor:"pointer",fontFamily:FONT}}>↻ 재생성</button>
             </div>
 
             {contexts.map((ctx,i)=>{
@@ -373,7 +373,7 @@ linkedShorts 3개: 메인 영상에서 파생. 각각 다른 파생유형(하이
               return (
                 <div key={i} onClick={()=>setPickedIdx(i)}
                   style={{...G,padding:0,marginBottom:16,display:"flex",overflow:"hidden",cursor:"pointer",transition:"all 0.25s",
-                    borderColor:picked?"rgba(6,182,212,0.5)":"rgba(255,255,255,0.05)",
+                    borderColor:picked?"rgba(6,182,212,0.5)":"#e5e7eb",
                     boxShadow:picked?"0 0 0 1px rgba(6,182,212,0.3), 0 4px 20px rgba(6,182,212,0.08)":"none"
                   }}>
                   {/* Phone Mockup */}
@@ -411,9 +411,9 @@ linkedShorts 3개: 메인 영상에서 파생. 각각 다른 파생유형(하이
                     {/* Horizontal Scenes */}
                     <div style={{display:"grid",gridTemplateColumns:"repeat(4,1fr)",gap:8}}>
                       {(ctx.scenes||[]).map((s,j)=>
-                        <div key={j} style={{padding:"8px 10px",borderRadius:8,border:"1px solid rgba(255,255,255,0.04)",background:"rgba(255,255,255,0.015)"}}>
-                          <div style={{fontSize:9,fontWeight:800,color:"#60a5fa",marginBottom:4}}>씬{j+1}</div>
-                          <div style={{fontSize:11,color:"#94a3b8",lineHeight:1.5,display:"-webkit-box",WebkitLineClamp:2,WebkitBoxOrient:"vertical",overflow:"hidden"}}>{s}</div>
+                        <div key={j} style={{padding:"8px 10px",borderRadius:8,border:"1px solid #f1f5f9",background:"#f8fafc"}}>
+                          <div style={{fontSize:9,fontWeight:800,color:"#3b82f6",marginBottom:4}}>씬{j+1}</div>
+                          <div style={{fontSize:11,color:"#64748b",lineHeight:1.5,display:"-webkit-box",WebkitLineClamp:2,WebkitBoxOrient:"vertical",overflow:"hidden"}}>{s}</div>
                         </div>
                       )}
                     </div>
@@ -422,7 +422,7 @@ linkedShorts 3개: 메인 영상에서 파생. 각각 다른 파생유형(하이
                     <div style={{display:"flex",gap:8,marginTop:14,alignItems:"center"}}>
                       <span style={{fontSize:11,color:"#10b981",fontWeight:700,display:"flex",alignItems:"center",gap:4}}>🎬 AI 영상 가능</span>
                       <button onClick={(e)=>{e.stopPropagation();setPickedIdx(i);}} style={{padding:"7px 18px",borderRadius:8,background:picked?"linear-gradient(135deg,#06b6d4,#0891b2)":"rgba(6,182,212,0.08)",border:picked?"none":"1px solid rgba(6,182,212,0.25)",color:picked?"#fff":"#06b6d4",fontSize:12,fontWeight:700,cursor:"pointer",fontFamily:FONT,transition:"all 0.2s"}}>촬영 스토리보드 생성 →</button>
-                      <button onClick={(e)=>{e.stopPropagation();runContextMatch();}} style={{padding:"7px 14px",borderRadius:8,border:"1px solid rgba(255,255,255,0.08)",background:"transparent",color:"#64748b",fontSize:11,cursor:"pointer",fontFamily:FONT}}>↻ 재생성</button>
+                      <button onClick={(e)=>{e.stopPropagation();runContextMatch();}} style={{padding:"7px 14px",borderRadius:8,border:"1px solid #e5e7eb",background:"transparent",color:"#64748b",fontSize:11,cursor:"pointer",fontFamily:FONT}}>↻ 재생성</button>
                     </div>
                   </div>
                 </div>
@@ -430,12 +430,12 @@ linkedShorts 3개: 메인 영상에서 파생. 각각 다른 파생유형(하이
             })}
 
             {/* Bottom CTA */}
-            <div style={{display:"flex",gap:12,justifyContent:"center",marginTop:28,padding:"20px 0",borderTop:"1px solid rgba(255,255,255,0.04)"}}>
-              <button onClick={runContextMatch} style={{padding:"12px 26px",borderRadius:10,border:"1px solid rgba(255,255,255,0.08)",background:"transparent",color:"#94a3b8",fontSize:13,cursor:"pointer",fontFamily:FONT}}>↻ 재생성</button>
+            <div style={{display:"flex",gap:12,justifyContent:"center",marginTop:28,padding:"20px 0",borderTop:"1px solid #f1f5f9"}}>
+              <button onClick={runContextMatch} style={{padding:"12px 26px",borderRadius:10,border:"1px solid #e5e7eb",background:"transparent",color:"#64748b",fontSize:13,cursor:"pointer",fontFamily:FONT}}>↻ 재생성</button>
               <button onClick={generateSF} disabled={pickedIdx===null||loading}
                 style={{padding:"14px 36px",borderRadius:12,border:"none",
-                  background:pickedIdx===null?"#1e293b":"linear-gradient(135deg,#06b6d4,#0891b2)",
-                  color:pickedIdx===null?"#475569":"#fff",fontSize:14,fontWeight:700,
+                  background:pickedIdx===null?"#f1f5f9":"linear-gradient(135deg,#06b6d4,#0891b2)",
+                  color:pickedIdx===null?"#9ca3af":"#fff",fontSize:14,fontWeight:700,
                   cursor:pickedIdx===null?"not-allowed":"pointer",fontFamily:FONT,
                   boxShadow:pickedIdx===null?"none":"0 6px 24px rgba(6,182,212,0.2)"}}>
                 {loading?"⏳ 생성 중...":pickedIdx===null?"맥락을 선택하세요":"🎬 선택한 맥락으로 숏폼 제작 →"}
@@ -456,7 +456,7 @@ linkedShorts 3개: 메인 영상에서 파생. 각각 다른 파생유형(하이
                 const d=sfResult[p.key]; if(!d) return null;
                 return (
                   <div key={p.key} style={{...G,padding:0,overflow:"hidden",display:"flex",flexDirection:"column"}}>
-                    <div style={{padding:"14px 22px",borderBottom:"1px solid rgba(255,255,255,0.04)",display:"flex",alignItems:"center",justifyContent:"space-between"}}>
+                    <div style={{padding:"14px 22px",borderBottom:"1px solid #f1f5f9",display:"flex",alignItems:"center",justifyContent:"space-between"}}>
                       <div style={{display:"flex",alignItems:"center",gap:8}}><span style={{color:p.c,fontWeight:900}}>{p.icon}</span><span style={{fontSize:15,fontWeight:800}}>{p.platform}</span></div>
                       <div style={{display:"flex",gap:6}}><Tag c={p.c}>{p.max}</Tag><Tag c="#475569">9:16</Tag></div>
                     </div>
@@ -470,14 +470,14 @@ linkedShorts 3개: 메인 영상에서 파생. 각각 다른 파생유형(하이
                       <div style={{marginBottom:16}}>
                         <div style={{fontSize:10,fontWeight:800,color:"#06b6d4",marginBottom:8}}>🎬 SCENE FLOW</div>
                         <div style={{display:"grid",gridTemplateColumns:"repeat(4,1fr)",gap:8}}>
-                          {(d.scenes||[]).map((s,j)=><div key={j} style={{padding:"8px 10px",borderRadius:8,border:"1px solid rgba(255,255,255,0.04)",background:"rgba(255,255,255,0.015)"}}><div style={{fontSize:9,fontWeight:800,color:"#60a5fa",marginBottom:4}}>씬{j+1}</div><div style={{fontSize:11,color:"#94a3b8",lineHeight:1.5}}>{s}</div></div>)}
+                          {(d.scenes||[]).map((s,j)=><div key={j} style={{padding:"8px 10px",borderRadius:8,border:"1px solid #f1f5f9",background:"#f8fafc"}}><div style={{fontSize:9,fontWeight:800,color:"#3b82f6",marginBottom:4}}>씬{j+1}</div><div style={{fontSize:11,color:"#64748b",lineHeight:1.5}}>{s}</div></div>)}
                         </div>
                       </div>
-                      <div style={{...G,padding:12,marginBottom:10,borderColor:"rgba(16,185,129,0.1)"}}><span style={{fontSize:10,fontWeight:800,color:"#10b981"}}>✓ PROOF</span><span style={{fontSize:12,color:"#94a3b8",marginLeft:8}}>{d.proof}</span></div>
-                      <div style={{...G,padding:12,marginBottom:16,borderColor:"rgba(59,130,246,0.1)"}}><span style={{fontSize:10,fontWeight:800,color:"#3b82f6"}}>→ CTA</span><span style={{fontSize:12,color:"#94a3b8",marginLeft:8}}>{d.cta}</span></div>
-                      <div style={{display:"flex",gap:5,flexWrap:"wrap",marginBottom:14}}>{(d.tags||[]).map((t,i)=><span key={i} style={{fontSize:10,color:"#64748b",background:"rgba(255,255,255,0.03)",padding:"4px 9px",borderRadius:6}}>{t}</span>)}</div>
-                      <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:10,fontSize:10,marginTop:"auto",paddingTop:12,borderTop:"1px solid rgba(255,255,255,0.04)"}}>
-                        <div><span style={{color:"#475569"}}>업로드 최적시간</span><div style={{color:"#94a3b8",marginTop:3,fontSize:11}}>{d.uploadTime}</div></div>
+                      <div style={{...G,padding:12,marginBottom:10,borderColor:"rgba(16,185,129,0.1)"}}><span style={{fontSize:10,fontWeight:800,color:"#10b981"}}>✓ PROOF</span><span style={{fontSize:12,color:"#64748b",marginLeft:8}}>{d.proof}</span></div>
+                      <div style={{...G,padding:12,marginBottom:16,borderColor:"rgba(59,130,246,0.1)"}}><span style={{fontSize:10,fontWeight:800,color:"#3b82f6"}}>→ CTA</span><span style={{fontSize:12,color:"#64748b",marginLeft:8}}>{d.cta}</span></div>
+                      <div style={{display:"flex",gap:5,flexWrap:"wrap",marginBottom:14}}>{(d.tags||[]).map((t,i)=><span key={i} style={{fontSize:10,color:"#64748b",background:"#f1f5f9",padding:"4px 9px",borderRadius:6}}>{t}</span>)}</div>
+                      <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:10,fontSize:10,marginTop:"auto",paddingTop:12,borderTop:"1px solid #f1f5f9"}}>
+                        <div><span style={{color:"#475569"}}>업로드 최적시간</span><div style={{color:"#64748b",marginTop:3,fontSize:11}}>{d.uploadTime}</div></div>
                         <div><span style={{color:"#475569"}}>타겟 클러스터</span><div style={{color:"#3b82f6",marginTop:3,fontSize:11}}>{d.targetCluster}</div></div>
                       </div>
                     </div>
@@ -486,8 +486,8 @@ linkedShorts 3개: 메인 영상에서 파생. 각각 다른 파생유형(하이
               })}
             </div>
             <div style={{display:"flex",gap:12,justifyContent:"center",marginTop:32}}>
-              <button onClick={()=>{setSfResult(null);generateSF();}} style={{padding:"12px 26px",borderRadius:10,border:"1px solid rgba(255,255,255,0.08)",background:"transparent",color:"#94a3b8",fontSize:13,cursor:"pointer",fontFamily:FONT}}>↻ 같은 맥락으로 재생성</button>
-              <button onClick={()=>{setStep(2);setSfResult(null);setPickedIdx(null);}} style={{padding:"12px 26px",borderRadius:10,border:"1px solid rgba(255,255,255,0.08)",background:"transparent",color:"#94a3b8",fontSize:13,cursor:"pointer",fontFamily:FONT}}>◎ 다른 맥락 선택</button>
+              <button onClick={()=>{setSfResult(null);generateSF();}} style={{padding:"12px 26px",borderRadius:10,border:"1px solid #e5e7eb",background:"transparent",color:"#64748b",fontSize:13,cursor:"pointer",fontFamily:FONT}}>↻ 같은 맥락으로 재생성</button>
+              <button onClick={()=>{setStep(2);setSfResult(null);setPickedIdx(null);}} style={{padding:"12px 26px",borderRadius:10,border:"1px solid #e5e7eb",background:"transparent",color:"#64748b",fontSize:13,cursor:"pointer",fontFamily:FONT}}>◎ 다른 맥락 선택</button>
               <button style={{padding:"12px 30px",borderRadius:10,background:"linear-gradient(135deg,#a78bfa,#7c3aed)",border:"none",color:"#fff",fontSize:13,fontWeight:700,cursor:"pointer",fontFamily:FONT}}>🎥 촬영 스토리보드 생성</button>
             </div>
           </>}
@@ -499,23 +499,23 @@ linkedShorts 3개: 메인 영상에서 파생. 각각 다른 파생유형(하이
         <h2 style={{fontSize:22,fontWeight:900,marginBottom:6}}>🗺️ 소비자 탐색 여정 콘텐츠 맵</h2>
         <p style={{fontSize:13,color:"#64748b",marginBottom:32}}>구매 여정 단계 × 크리에이터 타입 → 교차점 콘텐츠 생성. 셀을 선택하면 해당 교차점에 최적화된 콘텐츠 아이디어를 AI가 생성합니다.</p>
         <div style={{display:"grid",gridTemplateColumns:"200px repeat(3,1fr)",gap:10,marginBottom:28}}>
-          <div />{CREATORS.map(c=><div key={c.id} style={{...G,padding:16,textAlign:"center",background:"rgba(16,185,129,0.03)"}}><div style={{fontSize:14,fontWeight:800,color:"#34d399"}}>{c.label}</div><div style={{fontSize:10,color:"#475569",marginTop:4}}>{c.sub}</div></div>)}
+          <div />{CREATORS.map(c=><div key={c.id} style={{...G,padding:16,textAlign:"center",background:"rgba(16,185,129,0.03)"}}><div style={{fontSize:14,fontWeight:800,color:"#059669"}}>{c.label}</div><div style={{fontSize:10,color:"#475569",marginTop:4}}>{c.sub}</div></div>)}
           {JOURNEY.map(j=>[
-            <div key={j.id} style={{...G,padding:16}}><div style={{fontSize:13,fontWeight:800}}>{j.label}</div><div style={{fontSize:11,color:"#34d399",marginTop:6}}>"{j.q}"</div><div style={{fontSize:9,color:"#475569",marginTop:4}}>{j.kw}</div></div>,
+            <div key={j.id} style={{...G,padding:16}}><div style={{fontSize:13,fontWeight:800}}>{j.label}</div><div style={{fontSize:11,color:"#059669",marginTop:6}}>"{j.q}"</div><div style={{fontSize:9,color:"#475569",marginTop:4}}>{j.kw}</div></div>,
             ...CREATORS.map(c=>{const sl=selJ?.id===j.id&&selCr?.id===c.id;
               const JC={"early-brand":"[배터리 안전 실험]\nLFP 1000°C 화재 테스트\n— 안전은 국적이 아니라 과학","early-inf":"[전문가 해부]\n중국 전기차,\n정말 안전할까?","early-ugc":"[실구매 고백]\n중국차 편견이\n깨진 순간","mid-brand":"[스펙 대결]\n10분 충전 800V\nvs 테슬라 250kW","mid-inf":"[크로스 시승]\n모델Y 오너가\n7X를 직접 비교","mid-ugc":"[시승 브이로그]\n5천만원대에서\n이 옵션이 된다고?","late-brand":"[AS 공개]\n볼보 딜러 기반\n서비스 로드맵","late-inf":"[하체 분석]\n리프트에 올려서\n내구성 직접 확인","late-ugc":"[1개월 리얼 후기]\n주변 반응 변화와\n실제 유지비 공개"};
               const cellKey=j.id+"-"+c.id;
               const cellText=JC[cellKey]||"";
-              return <div key={j.id+c.id} onClick={()=>{setSelJ(j);setSelCr(c);setJResults(null);}} style={{...G,padding:14,cursor:"pointer",borderColor:sl?"rgba(16,185,129,0.4)":undefined,background:sl?"rgba(16,185,129,0.08)":undefined,transition:"all 0.25s",position:"relative"}}
+              return <div key={j.id+c.id} onClick={()=>{setSelJ(j);setSelCr(c);setJResults(null);}} style={{...G,padding:14,cursor:"pointer",borderColor:sl?"rgba(16,185,129,0.4)":undefined,background:sl?"rgba(16,185,129,0.04)":undefined,transition:"all 0.25s",position:"relative"}}
                 onMouseEnter={e=>{if(!sl)e.currentTarget.style.borderColor="rgba(16,185,129,0.2)";}}
-                onMouseLeave={e=>{if(!sl)e.currentTarget.style.borderColor="rgba(255,255,255,0.05)";}}>
+                onMouseLeave={e=>{if(!sl)e.currentTarget.style.borderColor="#e5e7eb";}}>
                 {sl&&<div style={{position:"absolute",top:8,right:8,width:18,height:18,borderRadius:"50%",background:"#10b981",display:"flex",alignItems:"center",justifyContent:"center",fontSize:10,color:"#fff"}}>✓</div>}
-                <div style={{fontSize:12,fontWeight:700,color:sl?"#34d399":"#e2e8f0",lineHeight:1.5,whiteSpace:"pre-wrap"}}>{cellText}</div>
+                <div style={{fontSize:12,fontWeight:700,color:sl?"#059669":"#1e293b",lineHeight:1.5,whiteSpace:"pre-wrap"}}>{cellText}</div>
               </div>;})
           ])}
         </div>
         {selJ&&selCr&&!jResults&&<div style={{textAlign:"center",padding:20}}><Btn onClick={()=>runJourney(selJ,selCr)} disabled={loading} c="135deg,#10b981,#059669">{loading?"⏳":"🗺️ 콘텐츠 생성"}</Btn></div>}
-        {jResults&&jResults.map((r,i)=><div key={i} style={{...G,padding:24,marginBottom:14,display:"flex",gap:18,alignItems:"flex-start"}}><ScoreBadge n={r.score}/><div style={{flex:1}}><div style={{fontSize:15,fontWeight:800,marginBottom:6}}>{r.title}</div><div style={{display:"flex",gap:6,marginBottom:10}}><Tag c="#06b6d4">{r.keyword}</Tag></div><div style={{fontSize:14,fontWeight:700,color:"#f59e0b",marginBottom:10}}>🎣 "{r.hook}"</div><div style={{fontSize:13,color:"#94a3b8",lineHeight:1.75,whiteSpace:"pre-wrap"}}>{r.overview}</div><div style={{fontSize:12,color:"#64748b",marginTop:10,fontStyle:"italic"}}>{r.why}</div><div style={{display:"flex",gap:6,marginTop:12}}>{(r.proofPoints||[]).map((p,j)=><Tag key={j} c="#10b981">{p}</Tag>)}</div></div></div>)}
+        {jResults&&jResults.map((r,i)=><div key={i} style={{...G,padding:24,marginBottom:14,display:"flex",gap:18,alignItems:"flex-start"}}><ScoreBadge n={r.score}/><div style={{flex:1}}><div style={{fontSize:15,fontWeight:800,marginBottom:6}}>{r.title}</div><div style={{display:"flex",gap:6,marginBottom:10}}><Tag c="#06b6d4">{r.keyword}</Tag></div><div style={{fontSize:14,fontWeight:700,color:"#f59e0b",marginBottom:10}}>🎣 "{r.hook}"</div><div style={{fontSize:13,color:"#64748b",lineHeight:1.75,whiteSpace:"pre-wrap"}}>{r.overview}</div><div style={{fontSize:12,color:"#64748b",marginTop:10,fontStyle:"italic"}}>{r.why}</div><div style={{display:"flex",gap:6,marginTop:12}}>{(r.proofPoints||[]).map((p,j)=><Tag key={j} c="#10b981">{p}</Tag>)}</div></div></div>)}
       </div>}
 
       {/* ═══ CREATOR MATCHING (Idea-first, no USP selection) ═══ */}
@@ -525,10 +525,10 @@ linkedShorts 3개: 메인 영상에서 파생. 각각 다른 파생유형(하이
           {[{n:1,l:"아이디어 도출"},{n:2,l:"콘텐츠 시나리오"}].map((s,i)=>
             <div key={i} style={{display:"flex",alignItems:"center"}}>
               <div style={{display:"flex",alignItems:"center",gap:8}}>
-                <div style={{width:30,height:30,borderRadius:"50%",background:crStep>=i+1?"linear-gradient(135deg,#f59e0b,#d97706)":"rgba(255,255,255,0.04)",border:crStep>=i+1?"none":"1px solid rgba(255,255,255,0.08)",display:"flex",alignItems:"center",justifyContent:"center",fontSize:12,fontWeight:800,color:crStep>=i+1?"#fff":"#475569"}}>{s.n}</div>
-                <span style={{fontSize:13,fontWeight:crStep===i+1?800:500,color:crStep>=i+1?"#f1f5f9":"#475569"}}>{s.l}</span>
+                <div style={{width:30,height:30,borderRadius:"50%",background:crStep>=i+1?"linear-gradient(135deg,#f59e0b,#d97706)":"#f1f5f9",border:crStep>=i+1?"none":"1px solid #e5e7eb",display:"flex",alignItems:"center",justifyContent:"center",fontSize:12,fontWeight:800,color:crStep>=i+1?"#fff":"#475569"}}>{s.n}</div>
+                <span style={{fontSize:13,fontWeight:crStep===i+1?800:500,color:crStep>=i+1?"#0f172a":"#475569"}}>{s.l}</span>
               </div>
-              {i<1&&<div style={{width:80,height:1,background:crStep>i+1?"#f59e0b":"rgba(255,255,255,0.06)",margin:"0 20px"}} />}
+              {i<1&&<div style={{width:80,height:1,background:crStep>i+1?"#f59e0b":"#e5e7eb",margin:"0 20px"}} />}
             </div>
           )}
         </div>}
@@ -564,7 +564,7 @@ linkedShorts 3개: 메인 영상에서 파생. 각각 다른 파생유형(하이
           <div style={{display:"flex",alignItems:"center",gap:12,marginBottom:24}}>
             <span style={{fontSize:17,fontWeight:900}}>• AI 추천 콘텐츠 아이디어 TOP {crIdeas.length}</span>
             <Tag c="#f59e0b">AI 실시간 생성</Tag>
-            <button onClick={runCreatorMatch} style={{marginLeft:"auto",padding:"7px 18px",borderRadius:8,border:"1px solid rgba(255,255,255,0.08)",background:"transparent",color:"#64748b",fontSize:12,cursor:"pointer",fontFamily:FONT}}>↻ 다른 조합으로 재분석</button>
+            <button onClick={runCreatorMatch} style={{marginLeft:"auto",padding:"7px 18px",borderRadius:8,border:"1px solid #e5e7eb",background:"transparent",color:"#64748b",fontSize:12,cursor:"pointer",fontFamily:FONT}}>↻ 다른 조합으로 재분석</button>
           </div>
 
           {crIdeas.map((idea,i)=>{
@@ -572,7 +572,7 @@ linkedShorts 3개: 메인 영상에서 파생. 각각 다른 파생유형(하이
             return (
               <div key={i} onClick={()=>setCrPickedIdx(i)}
                 style={{...G,padding:0,marginBottom:16,overflow:"hidden",cursor:"pointer",transition:"all 0.25s",
-                  borderColor:picked?"rgba(245,158,11,0.5)":"rgba(255,255,255,0.05)",
+                  borderColor:picked?"rgba(245,158,11,0.5)":"#e5e7eb",
                   boxShadow:picked?"0 0 0 1px rgba(245,158,11,0.3), 0 4px 20px rgba(245,158,11,0.08)":"none"
                 }}>
                 <div style={{padding:"20px 28px"}}>
@@ -602,7 +602,7 @@ linkedShorts 3개: 메인 영상에서 파생. 각각 다른 파생유형(하이
                           <div>
                             <span style={{fontSize:13,fontWeight:700}}>{cr.name}</span>
                             <span style={{fontSize:11,color:"#64748b",marginLeft:6}}>({cr.subs}, {cr.category})</span>
-                            <div style={{fontSize:11,color:"#94a3b8",marginTop:2}}>— {cr.reason}</div>
+                            <div style={{fontSize:11,color:"#64748b",marginTop:2}}>— {cr.reason}</div>
                           </div>
                         </div>
                       ))}
@@ -616,7 +616,7 @@ linkedShorts 3개: 메인 영상에서 파생. 각각 다른 파생유형(하이
                           <div>
                             <span style={{fontSize:13,fontWeight:700}}>{cr.name}</span>
                             <span style={{fontSize:11,color:"#64748b",marginLeft:6}}>({cr.subs}, {cr.category})</span>
-                            <div style={{fontSize:11,color:"#94a3b8",marginTop:2}}>— {cr.reason}</div>
+                            <div style={{fontSize:11,color:"#64748b",marginTop:2}}>— {cr.reason}</div>
                           </div>
                         </div>
                       ))}
@@ -628,12 +628,12 @@ linkedShorts 3개: 메인 영상에서 파생. 각각 다른 파생유형(하이
           })}
 
           {/* Bottom CTA */}
-          <div style={{display:"flex",gap:12,justifyContent:"center",marginTop:28,padding:"20px 0",borderTop:"1px solid rgba(255,255,255,0.04)"}}>
-            <button onClick={runCreatorMatch} style={{padding:"12px 26px",borderRadius:10,border:"1px solid rgba(255,255,255,0.08)",background:"transparent",color:"#94a3b8",fontSize:13,cursor:"pointer",fontFamily:FONT}}>↻ 다른 조합으로 재분석</button>
+          <div style={{display:"flex",gap:12,justifyContent:"center",marginTop:28,padding:"20px 0",borderTop:"1px solid #f1f5f9"}}>
+            <button onClick={runCreatorMatch} style={{padding:"12px 26px",borderRadius:10,border:"1px solid #e5e7eb",background:"transparent",color:"#64748b",fontSize:13,cursor:"pointer",fontFamily:FONT}}>↻ 다른 조합으로 재분석</button>
             <button onClick={runCreatorScenario} disabled={crPickedIdx===null||loading}
               style={{padding:"14px 36px",borderRadius:12,border:"none",
-                background:crPickedIdx===null?"#1e293b":"linear-gradient(135deg,#f59e0b,#d97706)",
-                color:crPickedIdx===null?"#475569":"#fff",fontSize:14,fontWeight:700,
+                background:crPickedIdx===null?"#f1f5f9":"linear-gradient(135deg,#f59e0b,#d97706)",
+                color:crPickedIdx===null?"#9ca3af":"#fff",fontSize:14,fontWeight:700,
                 cursor:crPickedIdx===null?"not-allowed":"pointer",fontFamily:FONT,
                 boxShadow:crPickedIdx===null?"none":"0 6px 24px rgba(245,158,11,0.2)"}}>
               {loading?"⏳ 생성 중...":crPickedIdx===null?"아이디어를 선택하세요":"🎬 선택한 아이디어로 콘텐츠 시나리오 생성"}
@@ -654,7 +654,7 @@ linkedShorts 3개: 메인 영상에서 파생. 각각 다른 파생유형(하이
 
           {/* Main Story (Long-form) */}
           <div style={{...G,padding:0,marginBottom:24,overflow:"hidden"}}>
-            <div style={{padding:"16px 24px",borderBottom:"1px solid rgba(255,255,255,0.04)",display:"flex",alignItems:"center",gap:10}}>
+            <div style={{padding:"16px 24px",borderBottom:"1px solid #f1f5f9",display:"flex",alignItems:"center",gap:10}}>
               <span style={{fontSize:18}}>🎬</span>
               <span style={{fontSize:17,fontWeight:900}}>메인 스토리</span>
               <Tag c="#f59e0b">{crScenario.mainStory.format}</Tag>
@@ -664,11 +664,11 @@ linkedShorts 3개: 메인 영상에서 파생. 각각 다른 파생유형(하이
               <div style={{fontSize:20,fontWeight:900,marginBottom:16}}>{crScenario.mainStory.title}</div>
               <div style={{...G,padding:16,marginBottom:16,borderColor:"rgba(245,158,11,0.1)"}}>
                 <div style={{fontSize:10,fontWeight:800,color:"#f59e0b",marginBottom:8}}>📐 스토리라인</div>
-                <div style={{fontSize:13,color:"#e2e8f0",lineHeight:1.75,whiteSpace:"pre-wrap"}}>{crScenario.mainStory.storyline}</div>
+                <div style={{fontSize:13,color:"#1e293b",lineHeight:1.75,whiteSpace:"pre-wrap"}}>{crScenario.mainStory.storyline}</div>
               </div>
               <div style={{...G,padding:16,marginBottom:16,borderColor:"rgba(59,130,246,0.1)"}}>
                 <div style={{fontSize:10,fontWeight:800,color:"#3b82f6",marginBottom:8}}>🎯 USP 노출 포인트</div>
-                <div style={{fontSize:13,color:"#94a3b8",lineHeight:1.75}}>{crScenario.mainStory.uspExposure}</div>
+                <div style={{fontSize:13,color:"#64748b",lineHeight:1.75}}>{crScenario.mainStory.uspExposure}</div>
               </div>
               <div style={{fontSize:12,color:"#64748b",display:"flex",alignItems:"center",gap:6}}>
                 <span style={{color:"#10b981"}}>📊</span> {crScenario.mainStory.expectedImpact}
@@ -686,7 +686,7 @@ linkedShorts 3개: 메인 영상에서 파생. 각각 다른 파생유형(하이
             <div style={{display:"grid",gridTemplateColumns:"repeat(3,1fr)",gap:16}}>
               {(crScenario.linkedShorts||[]).map((sf,i)=>(
                 <div key={i} style={{...G,padding:0,overflow:"hidden",display:"flex",flexDirection:"column"}}>
-                  <div style={{padding:"12px 16px",borderBottom:"1px solid rgba(255,255,255,0.04)",display:"flex",alignItems:"center",justifyContent:"space-between"}}>
+                  <div style={{padding:"12px 16px",borderBottom:"1px solid #f1f5f9",display:"flex",alignItems:"center",justifyContent:"space-between"}}>
                     <div style={{display:"flex",alignItems:"center",gap:6}}>
                       <span style={{color:sf.platform?.includes("Shorts")?"#ef4444":"#a78bfa",fontWeight:900,fontSize:13}}>{sf.platform?.includes("Shorts")?"▶":"◉"}</span>
                       <span style={{fontSize:12,fontWeight:700}}>{sf.platform}</span>
@@ -697,7 +697,7 @@ linkedShorts 3개: 메인 영상에서 파생. 각각 다른 파생유형(하이
                     <div style={{fontSize:15,fontWeight:800,marginBottom:8}}>"{sf.hook}"</div>
                     <div style={{fontSize:11,color:"#64748b",marginBottom:14,lineHeight:1.5}}>{sf.concept}</div>
                     {/* Algorithm Signal Stars */}
-                    <div style={{marginTop:"auto",padding:"10px 0 0",borderTop:"1px solid rgba(255,255,255,0.04)",display:"flex",flexDirection:"column",gap:6}}>
+                    <div style={{marginTop:"auto",padding:"10px 0 0",borderTop:"1px solid #f1f5f9",display:"flex",flexDirection:"column",gap:6}}>
                       {[["🎣","Hook",sf.hookScore,"#f59e0b"],["💎","Value",sf.valueScore,"#3b82f6"],["🔄","Retention",sf.retentionScore,"#10b981"]].map(([ic,label,score,clr],j)=>(
                         <div key={j} style={{display:"flex",alignItems:"center",gap:8}}>
                           <span style={{fontSize:11}}>{ic}</span>
@@ -714,15 +714,15 @@ linkedShorts 3개: 메인 영상에서 파생. 각각 다른 파생유형(하이
 
           {/* Actions */}
           <div style={{display:"flex",gap:12,justifyContent:"center",marginTop:28}}>
-            <button onClick={()=>{setCrScenario(null);runCreatorScenario();}} style={{padding:"12px 26px",borderRadius:10,border:"1px solid rgba(255,255,255,0.08)",background:"transparent",color:"#94a3b8",fontSize:13,cursor:"pointer",fontFamily:FONT}}>↻ 같은 아이디어로 재생성</button>
-            <button onClick={()=>{setCrStep(1);setCrScenario(null);setCrPickedIdx(null);}} style={{padding:"12px 26px",borderRadius:10,border:"1px solid rgba(255,255,255,0.08)",background:"transparent",color:"#94a3b8",fontSize:13,cursor:"pointer",fontFamily:FONT}}>◎ 다른 아이디어 선택</button>
+            <button onClick={()=>{setCrScenario(null);runCreatorScenario();}} style={{padding:"12px 26px",borderRadius:10,border:"1px solid #e5e7eb",background:"transparent",color:"#64748b",fontSize:13,cursor:"pointer",fontFamily:FONT}}>↻ 같은 아이디어로 재생성</button>
+            <button onClick={()=>{setCrStep(1);setCrScenario(null);setCrPickedIdx(null);}} style={{padding:"12px 26px",borderRadius:10,border:"1px solid #e5e7eb",background:"transparent",color:"#64748b",fontSize:13,cursor:"pointer",fontFamily:FONT}}>◎ 다른 아이디어 선택</button>
             <button style={{padding:"12px 30px",borderRadius:10,background:"linear-gradient(135deg,#a78bfa,#7c3aed)",border:"none",color:"#fff",fontSize:13,fontWeight:700,cursor:"pointer",fontFamily:FONT}}>🎥 촬영 스토리보드 생성</button>
           </div>
         </>}
       </div>}
 
-      {loading&&<div style={{position:"fixed",bottom:32,right:32,...G,padding:"14px 24px",display:"flex",alignItems:"center",gap:10,zIndex:200,borderColor:"rgba(59,130,246,0.15)"}}><div style={{width:8,height:8,borderRadius:"50%",background:"#3b82f6",animation:"pulse 1.2s infinite"}}/><span style={{fontSize:13,color:"#60a5fa",fontWeight:600}}>AI 생성 중...</span></div>}
-      <style>{`@keyframes pulse{0%,100%{opacity:1;transform:scale(1)}50%{opacity:.5;transform:scale(.8)}}*{box-sizing:border-box;margin:0;padding:0}::-webkit-scrollbar{width:5px}::-webkit-scrollbar-track{background:transparent}::-webkit-scrollbar-thumb{background:#1e293b;border-radius:3px}`}</style>
+      {loading&&<div style={{position:"fixed",bottom:32,right:32,...G,padding:"14px 24px",display:"flex",alignItems:"center",gap:10,zIndex:200,borderColor:"rgba(59,130,246,0.2)"}}><div style={{width:8,height:8,borderRadius:"50%",background:"#3b82f6",animation:"pulse 1.2s infinite"}}/><span style={{fontSize:13,color:"#3b82f6",fontWeight:600}}>AI 생성 중...</span></div>}
+      <style>{`@keyframes pulse{0%,100%{opacity:1;transform:scale(1)}50%{opacity:.5;transform:scale(.8)}}*{box-sizing:border-box;margin:0;padding:0}::-webkit-scrollbar{width:5px}::-webkit-scrollbar-track{background:transparent}::-webkit-scrollbar-thumb{background:#cbd5e1;border-radius:3px}`}</style>
     </div>
   );
 }
